@@ -21,4 +21,12 @@ public class ApplicationConfig {
     private String DEFAULT_AUDIT_ROLE_NAME;
     private String DEFAULT_SECURITY_ROLE_NAME;
     private String DEFAULT_USER_ROLE_NAME;
+
+    // 默认用户
+    private String DEFAULT_ADMIN_USER_USERNAME;
+    private String DEFAULT_ADMIN_USER_PASSWORD;
+    private String DEFAULT_SECURITY_USER_USERNAME;
+    private String DEFAULT_SECURITY_USER_PASSWORD;
+    private String DEFAULT_AUDIT_USER_USERNAME;
+    private String DEFAULT_AUDIT_USER_PASSWORD;
 }
