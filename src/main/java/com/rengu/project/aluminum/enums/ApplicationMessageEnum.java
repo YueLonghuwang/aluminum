@@ -10,16 +10,21 @@ package com.rengu.project.aluminum.enums;
 public enum ApplicationMessageEnum {
 
     SYSTEM_ERROR(0, "系统异常错误"),
+    DEFAULT_USER_DELETE_ERROR(1, "禁止删除内置用户"),
     SUCCEED(100, "请求成功"),
     // 角色接口提示信息
-    ROLE_NAME_NOT_FOUND(200, "角色名称参数不存在或不合法"),
+    ROLE_NAME_NOT_FOUND(200, "角色名称不存在或不合法"),
     ROLE_NAME_EXISTS(201, "该角色名称已存在"),
     ROLE_NAME_NOT_EXISTS(202, "该名称的角色不存在"),
     // 用户接口提示信息
-    USER_USERNAME_NOT_FOUND(200, "用户名称参数不存在或不合法"),
-    USER_USERNAME_EXISTS(201, "该用户名称已存在"),
-    USER_USERNAME_NOT_EXISTS(202, "该用户名称的用户不存在"),
-    USER_PASSWORD_NOT_FOUND(203, "用户密码参数不存在或不合法");
+    USER_USERNAME_NOT_FOUND(300, "用户名称不存在或不合法"),
+    USER_USERNAME_EXISTS(301, "该用户名称已存在"),
+    USER_USERNAME_NOT_EXISTS(302, "该用户名称的用户不存在"),
+    USER_PASSWORD_NOT_FOUND(303, "用户密码不存在或不合法"),
+    USER_ID_NOT_FOUND(304, "用户ID参数不存在或不合法"),
+    USER_ID_NOT_EXISTS(305, "该ID的用户不存在"),
+    // 密级提示信息
+    SECURITY_CLASSIFICATION_NOT_EXISTS(400, "该代码的密级不存在");
 
     private int code;
     private String message;

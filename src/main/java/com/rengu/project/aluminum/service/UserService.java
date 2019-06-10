@@ -1,11 +1,18 @@
 package com.rengu.project.aluminum.service;
 
+import com.rengu.project.aluminum.ApplicationConfig;
 import com.rengu.project.aluminum.entity.RoleEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
+import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import com.rengu.project.aluminum.exception.UserException;
 import com.rengu.project.aluminum.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,9 +38,11 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final ApplicationConfig applicationConfig;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, ApplicationConfig applicationConfig) {
         this.userRepository = userRepository;
+        this.applicationConfig = applicationConfig;
     }
 
     @Override
@@ -46,6 +55,7 @@ public class UserService implements UserDetailsService {
     }
 
     // 保存用户
+    @CachePut(value = "user_cache", key = "#userEntity.getId()")
     public UserEntity saveUser(UserEntity userEntity, RoleEntity... roleEntities) {
         if (StringUtils.isEmpty(userEntity.getUsername())) {
             throw new UserException(ApplicationMessageEnum.USER_USERNAME_NOT_FOUND);
@@ -60,6 +70,57 @@ public class UserService implements UserDetailsService {
         userEntity.setRoleEntities(new HashSet<>(Arrays.asList(roleEntities)));
         return userRepository.save(userEntity);
     }
+
+    // 根据Id删除用户
+    @CacheEvict(value = "user_cache", key = "#userId")
+    public UserEntity deleteUserById(String userId) {
+        UserEntity userEntity = getUserById(userId);
+        if (userEntity.getUsername().equals(applicationConfig.getDEFAULT_ADMIN_USER_USERNAME()) || userEntity.getUsername().equals(applicationConfig.getDEFAULT_ADMIN_USER_USERNAME()) || userEntity.getUsername().equals(applicationConfig.getDEFAULT_ADMIN_USER_USERNAME())) {
+            throw new UserException(ApplicationMessageEnum.DEFAULT_USER_DELETE_ERROR);
+        }
+        userRepository.deleteById(userId);
+        return userEntity;
+    }
+
+    // 根据id修改用户密码
+    @CachePut(value = "user_cache", key = "#userId")
+    public UserEntity updatePasswordById(String userId, String password) {
+        if (StringUtils.isEmpty(password)) {
+            throw new UserException(ApplicationMessageEnum.USER_PASSWORD_NOT_FOUND);
+        }
+        UserEntity userEntity = getUserById(userId);
+        userEntity.setPassword(new BCryptPasswordEncoder().encode(password));
+        return userRepository.save(userEntity);
+    }
+
+    // 根据id修改用户密级
+    @CachePut(value = "user_cache", key = "#userId")
+    public UserEntity updateSecurityClassificationById(String userId, int securityClassification) {
+        SecurityClassificationEnum securityClassificationEnum = SecurityClassificationEnum.getEnum(securityClassification);
+        UserEntity userEntity = getUserById(userId);
+        userEntity.setSecurityClassification(securityClassificationEnum.getCode());
+        return userRepository.save(userEntity);
+    }
+
+
+    // 根据Id查询用户
+    @Cacheable(value = "user_cache", key = "#userId")
+    public UserEntity getUserById(String userId) {
+        if (StringUtils.isEmpty(userId)) {
+            throw new UserException(ApplicationMessageEnum.USER_ID_NOT_FOUND);
+        }
+        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
+        if (!userEntityOptional.isPresent()) {
+            throw new UserException(ApplicationMessageEnum.USER_ID_NOT_EXISTS);
+        }
+        return userEntityOptional.get();
+    }
+
+    // 分页查询全部用户
+    public Page<UserEntity> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
+
 
     // 根据用户名判断用户是否存在
     public boolean hasUserByUsername(String username) {

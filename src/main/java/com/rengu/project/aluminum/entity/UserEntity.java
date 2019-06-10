@@ -1,7 +1,7 @@
 package com.rengu.project.aluminum.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.rengu.project.aluminum.enums.SecurityCclassificationEnum;
+import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -35,7 +35,7 @@ public class UserEntity implements UserDetails, Serializable {
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;
-    private int securityClassification = SecurityCclassificationEnum.PUBLIC.getCode();
+    private int securityClassification = SecurityClassificationEnum.PUBLIC.getCode();
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<RoleEntity> roleEntities;
 
