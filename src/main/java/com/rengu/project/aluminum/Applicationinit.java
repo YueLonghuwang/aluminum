@@ -26,36 +26,22 @@ public class Applicationinit implements ApplicationRunner {
         this.roleService = roleService;
     }
 
+    private void initApplicationRole(String name) {
+        if (!roleService.hasRoleByName(name)) {
+            RoleEntity roleEntity = new RoleEntity();
+            roleEntity.setName(name);
+            roleEntity.setDescription(name);
+            roleService.saveRole(roleEntity);
+            log.info("已初始化角色：" + name);
+        }
+    }
+
     @Override
     public void run(ApplicationArguments args) {
         // 初始化角色
-        if (!roleService.hasRoleByName(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME())) {
-            RoleEntity roleEntity = new RoleEntity();
-            roleEntity.setName(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME());
-            roleEntity.setDescription(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME());
-            roleService.saveRole(roleEntity);
-            log.info("已初始化角色：" + applicationConfig.getDEFAULT_ADMIN_ROLE_NAME());
-        }
-        if (!roleService.hasRoleByName(applicationConfig.getDEFAULT_AUDIT_ROLE_NAME())) {
-            RoleEntity roleEntity = new RoleEntity();
-            roleEntity.setName(applicationConfig.getDEFAULT_AUDIT_ROLE_NAME());
-            roleEntity.setDescription(applicationConfig.getDEFAULT_AUDIT_ROLE_NAME());
-            roleService.saveRole(roleEntity);
-            log.info("已初始化角色：" + applicationConfig.getDEFAULT_AUDIT_ROLE_NAME());
-        }
-        if (!roleService.hasRoleByName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME())) {
-            RoleEntity roleEntity = new RoleEntity();
-            roleEntity.setName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME());
-            roleEntity.setDescription(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME());
-            roleService.saveRole(roleEntity);
-            log.info("已初始化角色：" + applicationConfig.getDEFAULT_SECURITY_ROLE_NAME());
-        }
-        if (!roleService.hasRoleByName(applicationConfig.getDEFAULT_USER_ROLE_NAME())) {
-            RoleEntity roleEntity = new RoleEntity();
-            roleEntity.setName(applicationConfig.getDEFAULT_USER_ROLE_NAME());
-            roleEntity.setDescription(applicationConfig.getDEFAULT_USER_ROLE_NAME());
-            roleService.saveRole(roleEntity);
-            log.info("已初始化角色：" + applicationConfig.getDEFAULT_USER_ROLE_NAME());
-        }
+        initApplicationRole(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME());
+        initApplicationRole(applicationConfig.getDEFAULT_AUDIT_ROLE_NAME());
+        initApplicationRole(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME());
+        initApplicationRole(applicationConfig.getDEFAULT_USER_ROLE_NAME());
     }
 }
