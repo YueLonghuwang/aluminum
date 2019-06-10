@@ -29,4 +29,10 @@ public class ApplicationConfig {
     private String DEFAULT_SECURITY_USER_PASSWORD;
     private String DEFAULT_AUDIT_USER_USERNAME;
     private String DEFAULT_AUDIT_USER_PASSWORD;
+
+    // OAuth2配置
+    private String OAUTH_CLIENT_ID;
+    private String OAUTH_CLIENT_SECRET;
+    private String OAUTH_CLIENT_SCOPES;
+    private String OAUTH_JWT_SIGNINGKEY;
 }
