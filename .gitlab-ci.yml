@@ -1,0 +1,31 @@
+image: java:8
+
+#配置缓存路径
+cache:
+  paths:
+    - /root/.m2
+
+stages:
+  - test
+  - package
+
+before_script:
+  - chmod +x ./mvnw
+
+test:
+  stage: test
+  script:
+    - ./mvnw test
+    - ./mvnw sonar:sonar -Dsonar.projectKey= $SONAR_PROJECT_KEY -Dsonar.host.url= $SONAR_HOST_URL -Dsonar.login= $SONAR_LOGIN
+  only:
+    - dev
+
+package:
+  stage: package
+  script:
+    - ./mvnw package
+  artifacts:
+    paths:
+      - ./taget/*.jar
+  only:
+    - master
