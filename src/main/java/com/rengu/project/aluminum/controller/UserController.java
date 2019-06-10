@@ -55,7 +55,7 @@ public class UserController {
     }
 
     // 根据id修改用户密级
-    @PreAuthorize(value = "hasRole(#applicationConfig.DEFAULT_SECURITY_ROLE_NAME)")
+    @PreAuthorize(value = "hasRole(#applicationConfig.getDEFAULT_SECURITY_ROLE_NAME())")
     @PatchMapping(value = "/{userId}/security-classification")
     public ResultEntity<UserEntity> updateSecurityClassificationById(@PathVariable(name = "userId") String userId, @RequestParam(name = "securityClassification") int securityClassification) {
         return new ResultEntity<>(userService.updateSecurityClassificationById(userId, securityClassification));
@@ -68,7 +68,7 @@ public class UserController {
     }
 
     // 分页查询全部用户
-    @PreAuthorize(value = "hasRole(#applicationConfig.DEFAULT_ADMIN_ROLE_NAME)")
+    @PreAuthorize(value = "hasRole(#applicationConfig.getDEFAULT_ADMIN_ROLE_NAME())")
     @GetMapping
     public ResultEntity<Page<UserEntity>> getUsers(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(userService.getUsers(pageable));

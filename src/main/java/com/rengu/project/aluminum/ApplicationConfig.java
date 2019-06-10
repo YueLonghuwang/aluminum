@@ -1,6 +1,6 @@
 package com.rengu.project.aluminum;
 
-import lombok.Data;
+import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * @date 2019-06-10
  */
 
-@Data
+@Getter
 @Component
 @ConfigurationProperties(prefix = "config")
 public class ApplicationConfig {
