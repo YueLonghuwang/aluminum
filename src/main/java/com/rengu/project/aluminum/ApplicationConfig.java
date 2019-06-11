@@ -1,9 +1,13 @@
 package com.rengu.project.aluminum;
 
+import com.rengu.project.aluminum.util.FormatUtils;
 import lombok.Data;
+import org.apache.commons.io.FileUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
 
 /**
  * com.rengu.project.aluminum
@@ -37,4 +41,8 @@ public class ApplicationConfig {
     private String OAUTH_CLIENT_SECRET;
     private String OAUTH_CLIENT_SCOPES;
     private String OAUTH_JWT_SIGNINGKEY;
+
+    // 本地文件库配置
+    private String CHUNKS_SAVE_PATH = FormatUtils.formatPath(FileUtils.getTempDirectoryPath() + File.separator + "ALUMINUM" + File.separator + "CHUNKS");
+    private String FILES_SAVE_PATH = FormatUtils.formatPath(FileUtils.getUserDirectoryPath() + File.separator + "ALUMINUM" + File.separator + "FILES");
 }

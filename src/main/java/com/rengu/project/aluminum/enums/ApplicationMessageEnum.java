@@ -24,7 +24,13 @@ public enum ApplicationMessageEnum {
     USER_ID_NOT_FOUND(304, "用户ID参数不存在或不合法"),
     USER_ID_NOT_EXISTS(305, "该ID的用户不存在"),
     // 密级提示信息
-    SECURITY_CLASSIFICATION_NOT_EXISTS(400, "该代码的密级不存在");
+    SECURITY_CLASSIFICATION_NOT_EXISTS(400, "该代码的密级不存在"),
+    // 文件块提示信息
+    CHUNK_NOT_EXISTS(500, "该文件的文件块缺失或不正确"),
+    // 文件提示信息
+    FILE_MD5_NOT_FOUND(600, "文件MD5不存在或不合法"),
+    FILE_MD5_EXISTS(601, "该文件MD5已存在"),
+    FILE_MD5_NOT_EXISTS(602, "该文件MD5的文件不存在");
 
     private int code;
     private String message;
