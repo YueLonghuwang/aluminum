@@ -30,7 +30,15 @@ public enum ApplicationMessageEnum {
     // 文件提示信息
     FILE_MD5_NOT_FOUND(600, "文件MD5不存在或不合法"),
     FILE_MD5_EXISTS(601, "该文件MD5已存在"),
-    FILE_MD5_NOT_EXISTS(602, "该文件MD5的文件不存在");
+    FILE_MD5_NOT_EXISTS(602, "该文件MD5的文件不存在"),
+    // 部门提示信息
+    DEPARTMENT_NAME_NOT_FOUND(700, "部门名称不存在或不合法"),
+    DEPARTMENT_NAME_EXISTS(701, "该部门名称已存在"),
+    DEPARTMENT_NAME_NOT_EXISTS(702, "该名称的部门不存在"),
+    DEPARTMENT_ID_NOT_FOUND(703, "部门ID不存在或不合法"),
+    DEPARTMENT_ID_EXISTS(704, "该部门ID已存在"),
+    DEPARTMENT_ID_NOT_EXISTS(705, "该ID的部门不存在"),
+    DEPARTMENT_MEMBERS_NOT_EMPTY(706, "该部门还存在成员");
 
     private int code;
     private String message;

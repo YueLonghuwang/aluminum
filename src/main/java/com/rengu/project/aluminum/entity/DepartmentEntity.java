@@ -5,27 +5,29 @@ import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * com.rengu.project.aluminum.entity
  *
  * @author hanchangming
- * @date 2019-06-10
+ * @date 2019-06-11
  */
 
 @Data
 @Entity
-public class FileEntity implements Serializable {
+public class DepartmentEntity implements Serializable {
 
     @Id
     private String id = UUID.randomUUID().toString();
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
-    private String mD5;
-    private String type;
-    private long size;
-    private String localPath;
+    private String name;
+    private String description;
+    @OneToMany
+    private Set<UserEntity> members;
 }

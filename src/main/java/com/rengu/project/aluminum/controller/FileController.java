@@ -27,13 +27,13 @@ public class FileController {
     }
 
     // 根据md5查询文件
-    @GetMapping(value = "/by-md5")
+    @GetMapping(value = "/by/md5")
     public ResultEntity getFileByMd5(@RequestParam(value = "md5") String md5) {
         return new ResultEntity<>(fileService.getFileByMd5(md5));
     }
 
     // 根据MD5检查文件是否存在
-    @GetMapping(value = "/has-md5")
+    @GetMapping(value = "/has/md5")
     public ResultEntity hasFileByMD5(@RequestParam(value = "md5") String md5) {
         return new ResultEntity<>(fileService.hasFileByMd5(md5));
     }

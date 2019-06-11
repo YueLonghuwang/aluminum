@@ -24,6 +24,7 @@ import org.springframework.util.StringUtils;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * com.rengu.project.aluminum.service
@@ -119,6 +120,16 @@ public class UserService implements UserDetailsService {
     // 分页查询全部用户
     public Page<UserEntity> getUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
+    }
+
+    // 根据多个Id查询用户
+    public Set<UserEntity> getUsers(String[] userIds) {
+        Set<UserEntity> userEntitySet = new HashSet<>();
+        for (String userId : userIds) {
+            UserEntity userEntity = getUserById(userId);
+            userEntitySet.add(userEntity);
+        }
+        return userEntitySet;
     }
 
 

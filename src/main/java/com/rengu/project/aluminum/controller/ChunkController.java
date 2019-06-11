@@ -41,7 +41,7 @@ public class ChunkController {
     }
 
     // 检查文件块是否存在
-    @GetMapping(value = "/has-chunks")
+    @GetMapping(value = "/has/chunks")
     public void hasChunk(HttpServletResponse httpServletResponse, ChunkEntity chunkEntity) {
         if (!chunkService.hasChunk(chunkEntity)) {
             httpServletResponse.setStatus(HttpServletResponse.SC_GONE);
