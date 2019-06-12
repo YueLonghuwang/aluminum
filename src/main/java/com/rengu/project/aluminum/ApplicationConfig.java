@@ -4,7 +4,6 @@ import com.rengu.project.aluminum.util.FormatUtils;
 import lombok.Data;
 import org.apache.commons.io.FileUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -16,7 +15,6 @@ import java.io.File;
  * @date 2019-06-10
  */
 
-@Order(value = -1)
 @Data
 @Component
 @ConfigurationProperties(prefix = "config")
