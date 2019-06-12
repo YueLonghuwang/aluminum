@@ -16,7 +16,8 @@ test:
   stage: test
   script:
     - ./mvnw test
-    - ./mvnw sonar:sonar -Dsonar.projectKey=aluminum -Dsonar.host.url=http://192.168.31.53:9000 -Dsonar.login=123d7200c0c547373345434ceb279e4e8c9d9ecfd01
+    - ./mvnw sonar:sonar -Dsonar.projectKey= $SONAR_PROJECT_KEY -Dsonar.host.url= $SONAR_HOST_URL -Dsonar.login= $SONAR_LOGIN
+  #    - ./mvnw sonar:sonar -Dsonar.projectKey=aluminum -Dsonar.host.url=http://192.168.31.53:9000 -Dsonar.login=bed25fb32c7cc5e2a989dbcb056bf359d81a5b06
   only:
     - dev
 
