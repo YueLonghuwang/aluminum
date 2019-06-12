@@ -10,14 +10,19 @@ stages:
   - package
 
 before_script:
+  - echo $CI_JOB_ID
+  - echo $SONAR_HOST_URL
+  - echo $SONAR_LOGIN
+  - echo $SONAR_PROJECT_KEY
   - chmod +x ./mvnw
 
 test:
   stage: test
   script:
     - ./mvnw test
-    - ./mvnw sonar:sonar -Dsonar.projectKey=aluminum -Dsonar.host.url=http://192.168.31.53:9000 -Dsonar.login=123d7200c0c547373345434ceb279e4e8c9d9ecfd01
+    - ./mvnw sonar:sonar -Dsonar.projectKey=aluminum -Dsonar.host.url=http://192.168.31.53:9000 -Dsonar.login=aluminum
   only:
+    - Han
     - dev
 
 package:
