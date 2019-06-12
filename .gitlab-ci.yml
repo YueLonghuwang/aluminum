@@ -3,7 +3,7 @@ image: java:8
 #配置缓存路径
 cache:
   paths:
-    - /root/.m2
+    - /root/.m2/repository
 
 stages:
   - test
