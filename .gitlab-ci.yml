@@ -3,7 +3,7 @@ image: java:8
 #配置缓存路径
 cache:
   paths:
-    - /root/.m2
+    - /root/.m2/repository
 
 stages:
   - test
@@ -16,7 +16,7 @@ test:
   stage: test
   script:
     - ./mvnw test
-    - ./mvnw sonar:sonar -Dsonar.projectKey= $SONAR_PROJECT_KEY -Dsonar.host.url= $SONAR_HOST_URL -Dsonar.login= $SONAR_LOGIN
+    - ./mvnw sonar:sonar -Dsonar.projectKey=aluminum -Dsonar.host.url=http://192.168.31.53:9000 -Dsonar.login=123d7200c0c547373345434ceb279e4e8c9d9ecfd01
   only:
     - dev
 
