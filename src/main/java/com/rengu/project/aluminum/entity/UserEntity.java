@@ -7,10 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
 
@@ -36,6 +33,8 @@ public class UserEntity implements UserDetails, Serializable {
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;
     private int securityClassification = SecurityClassificationEnum.PUBLIC.getCode();
+    @ManyToOne
+    private DepartmentEntity department;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<RoleEntity> roleEntities;
 

@@ -1,7 +1,6 @@
 package com.rengu.project.aluminum.service;
 
 import com.rengu.project.aluminum.entity.DepartmentEntity;
-import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.exception.DepartmentException;
 import com.rengu.project.aluminum.repository.DepartmentRepository;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * com.rengu.project.aluminum.service
@@ -52,9 +50,6 @@ public class DepartmentService {
     @CacheEvict(value = "department_cache", key = "#departmentId")
     public DepartmentEntity deleteDepartmentById(String departmentId) {
         DepartmentEntity departmentEntity = getDepartmentById(departmentId);
-        if (!departmentEntity.getMembers().isEmpty()) {
-            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_MEMBERS_NOT_EMPTY);
-        }
         departmentRepository.deleteById(departmentId);
         return departmentEntity;
     }
@@ -71,21 +66,6 @@ public class DepartmentService {
             }
         }
         departmentEntity.setDescription(departmentArgs.getDescription());
-        return departmentRepository.save(departmentEntity);
-    }
-
-    // 根据id添加成员
-    @CachePut(value = "department_cache", key = "#departmentId")
-    public DepartmentEntity departmentAddUsersById(String departmentId, Set<UserEntity> userEntitySet) {
-        DepartmentEntity departmentEntity = getDepartmentById(departmentId);
-        departmentEntity.getMembers().addAll(userEntitySet);
-        return departmentRepository.save(departmentEntity);
-    }
-
-    @CachePut(value = "department_cache", key = "#departmentId")
-    public DepartmentEntity departmentRemoveUsersById(String departmentId, Set<UserEntity> userEntitySet) {
-        DepartmentEntity departmentEntity = getDepartmentById(departmentId);
-        departmentEntity.getMembers().removeAll(userEntitySet);
         return departmentRepository.save(departmentEntity);
     }
 

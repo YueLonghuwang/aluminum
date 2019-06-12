@@ -2,6 +2,7 @@ package com.rengu.project.aluminum;
 
 import com.rengu.project.aluminum.entity.RoleEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
+import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import com.rengu.project.aluminum.service.RoleService;
 import com.rengu.project.aluminum.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +62,7 @@ public class Applicationinit implements ApplicationRunner {
             UserEntity userEntity = new UserEntity();
             userEntity.setUsername(username);
             userEntity.setPassword(password);
+            userEntity.setSecurityClassification(SecurityClassificationEnum.CONFIDENTIAL.getCode());
             userService.saveUser(userEntity, roleEntities);
             log.info("已初始化用户：" + username);
         }

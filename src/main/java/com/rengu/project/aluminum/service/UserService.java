@@ -1,6 +1,7 @@
 package com.rengu.project.aluminum.service;
 
 import com.rengu.project.aluminum.ApplicationConfig;
+import com.rengu.project.aluminum.entity.DepartmentEntity;
 import com.rengu.project.aluminum.entity.RoleEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
@@ -103,6 +104,23 @@ public class UserService implements UserDetailsService {
         return userRepository.save(userEntity);
     }
 
+    // 根据id修改用户密级
+    @CachePut(value = "user_cache", key = "#userId")
+    public UserEntity updateDepartmentById(String userId, DepartmentEntity departmentEntity) {
+        UserEntity userEntity = getUserById(userId);
+        userEntity.setDepartment(departmentEntity);
+        return userRepository.save(userEntity);
+    }
+
+    // 根据id修改用户密级
+    public Set<UserEntity> updateDepartmentByIds(String[] userIds, DepartmentEntity departmentEntity) {
+        Set<UserEntity> userEntitySet = new HashSet<>();
+        for (String userId : userIds) {
+            userEntitySet.add(updateDepartmentById(userId, departmentEntity));
+        }
+        return userEntitySet;
+    }
+
 
     // 根据Id查询用户
     @Cacheable(value = "user_cache", key = "#userId")
@@ -117,9 +135,31 @@ public class UserService implements UserDetailsService {
         return userEntityOptional.get();
     }
 
+    // 根据用户名查询用户
+    public UserEntity getUserByUsername(String username) {
+        if (StringUtils.isEmpty(username)) {
+            throw new UserException(ApplicationMessageEnum.USER_USERNAME_NOT_FOUND);
+        }
+        Optional<UserEntity> userEntityOptional = userRepository.findByUsername(username);
+        if (!userEntityOptional.isPresent()) {
+            throw new UserException(ApplicationMessageEnum.USER_USERNAME_NOT_EXISTS);
+        }
+        return userEntityOptional.get();
+    }
+
     // 分页查询全部用户
     public Page<UserEntity> getUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
+    }
+
+    // 安部门查询用户
+    public Page<UserEntity> getUsersByDepartment(Pageable pageable, DepartmentEntity departmentEntity) {
+        return userRepository.findByDepartment(pageable, departmentEntity);
+    }
+
+    // 分页查询全部用户
+    public Set<UserEntity> getUsersByDepartment(DepartmentEntity departmentEntity) {
+        return userRepository.findByDepartment(departmentEntity);
     }
 
     // 根据多个Id查询用户

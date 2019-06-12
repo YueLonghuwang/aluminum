@@ -3,6 +3,8 @@ package com.rengu.project.aluminum.controller;
 import com.rengu.project.aluminum.entity.DepartmentEntity;
 import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
+import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
+import com.rengu.project.aluminum.exception.DepartmentException;
 import com.rengu.project.aluminum.service.DepartmentService;
 import com.rengu.project.aluminum.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +47,9 @@ public class DepartmentController {
     // 根据id删除部门
     @DeleteMapping(value = "/{departmentId}")
     public ResultEntity<DepartmentEntity> deleteDepartmentById(@PathVariable(name = "departmentId") String departmentId) {
+        if (!userService.getUsersByDepartment(departmentService.getDepartmentById(departmentId)).isEmpty()) {
+            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_MEMBERS_NOT_EMPTY);
+        }
         return new ResultEntity<>(departmentService.deleteDepartmentById(departmentId));
     }
 
@@ -56,16 +61,20 @@ public class DepartmentController {
 
     // 根据id添加成员
     @PatchMapping(value = "/{departmentId}/add/users")
-    public ResultEntity<DepartmentEntity> departmentAddUsersById(@PathVariable(name = "departmentId") String departmentId, @RequestParam(value = "userIds") String[] userIds) {
-        Set<UserEntity> userEntitySet = userService.getUsers(userIds);
-        return new ResultEntity<>(departmentService.departmentAddUsersById(departmentId, userEntitySet));
+    public ResultEntity<Set<UserEntity>> departmentAddUsersById(@PathVariable(name = "departmentId") String departmentId, @RequestParam(value = "userIds") String[] userIds) {
+        return new ResultEntity<>(userService.updateDepartmentByIds(userIds, departmentService.getDepartmentById(departmentId)));
     }
 
     // 根据id添加成员
     @PatchMapping(value = "/{departmentId}/remove/users")
-    public ResultEntity<DepartmentEntity> departmentRemoveUsersById(@PathVariable(name = "departmentId") String departmentId, @RequestParam(value = "userIds") String[] userIds) {
-        Set<UserEntity> userEntitySet = userService.getUsers(userIds);
-        return new ResultEntity<>(departmentService.departmentRemoveUsersById(departmentId, userEntitySet));
+    public ResultEntity<Set<UserEntity>> departmentRemoveUsersById(@PathVariable(name = "departmentId") String departmentId, @RequestParam(value = "userIds") String[] userIds) {
+        return new ResultEntity<>(userService.updateDepartmentByIds(userIds, null));
+    }
+
+    // 根据id查询部门
+    @GetMapping(value = "/{departmentId}/users")
+    public ResultEntity<Page<UserEntity>> getDepartmentById(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(name = "departmentId") String departmentId) {
+        return new ResultEntity<>(userService.getUsersByDepartment(pageable, departmentService.getDepartmentById(departmentId)));
     }
 
     // 根据id查询部门

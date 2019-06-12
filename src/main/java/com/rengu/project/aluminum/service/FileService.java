@@ -55,6 +55,13 @@ public class FileService {
         return fileRepository.save(fileEntity);
     }
 
+    // 根据Id删除文件
+    public FileEntity deleteFileById(String fileId) throws IOException {
+        FileEntity fileEntity = getFileById(fileId);
+        FileUtils.forceDeleteOnExit(new File(fileEntity.getLocalPath()));
+        return fileEntity;
+    }
+
     // 根据md5查询文件是否存在
     @Cacheable(value = "file_cache", key = "#md5")
     public FileEntity getFileByMd5(String md5) {
@@ -63,7 +70,19 @@ public class FileService {
         }
         Optional<FileEntity> fileEntityOptional = fileRepository.findByMD5(md5);
         if (!fileEntityOptional.isPresent()) {
-            throw new FileException(ApplicationMessageEnum.FILE_MD5_NOT_FOUND);
+            throw new FileException(ApplicationMessageEnum.FILE_MD5_NOT_EXISTS);
+        }
+        return fileEntityOptional.get();
+    }
+
+    // 根据Id查询文件
+    public FileEntity getFileById(String fileId) {
+        if (StringUtils.isEmpty(fileId)) {
+            throw new FileException(ApplicationMessageEnum.FILE_ID_NOT_FOUND);
+        }
+        Optional<FileEntity> fileEntityOptional = fileRepository.findById(fileId);
+        if (!fileEntityOptional.isPresent()) {
+            throw new FileException(ApplicationMessageEnum.FILE_ID_NOT_EXISTS);
         }
         return fileEntityOptional.get();
     }

@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
@@ -18,12 +19,18 @@ import java.util.UUID;
 
 @Data
 @Entity
-public class DepartmentEntity implements Serializable {
+public class ResourceFileEntity implements Serializable {
 
     @Id
     private String id = UUID.randomUUID().toString();
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime = new Date();
     private String name;
-    private String description;
+    private String extension;
+    private boolean folder;
+    private String resourceId;
+    @ManyToOne
+    private FileEntity fileEntity;
+    @ManyToOne
+    private ResourceFileEntity parentNode;
 }
