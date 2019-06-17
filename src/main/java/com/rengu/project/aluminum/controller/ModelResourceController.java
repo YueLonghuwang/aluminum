@@ -38,35 +38,35 @@ public class ModelResourceController {
         this.userService = userService;
     }
 
-    // 保存标准规范
+    // 保存模型资源
     @PostMapping
     public ResultEntity<ModelResourceEntity> saveResource(@AuthenticationPrincipal String username, ModelResourceEntity modelResourceEntity) {
         UserEntity userEntity = userService.getUserByUsername(username);
         return new ResultEntity<>(modelResourceService.saveResource(modelResourceEntity, userEntity));
     }
 
-    // 根据ID删除标准规范
+    // 根据ID删除模型资源
     @DeleteMapping(value = "/{modelResourceId}")
     public ResultEntity<ModelResourceEntity> deleteResourceById(@AuthenticationPrincipal String username, @PathVariable(value = "modelResourceId") String modelResourceId) throws IOException {
         UserEntity userEntity = userService.getUserByUsername(username);
         return new ResultEntity<>(modelResourceService.deleteResourceById(modelResourceId, userEntity));
     }
 
-    // 根据ID修改标准规范
+    // 根据ID修改模型资源
     @PatchMapping(value = "/{modelResourceId}")
     public ResultEntity<ModelResourceEntity> updateResourceById(@AuthenticationPrincipal String username, @PathVariable(value = "modelResourceId") String modelResourceId, ModelResourceEntity modelResourceEntity) {
         UserEntity userEntity = userService.getUserByUsername(username);
         return new ResultEntity<>(modelResourceService.updateResourceById(modelResourceId, modelResourceEntity, userEntity));
     }
 
-    // 根据ID修查询准规范
+    // 通过资源Id获取资源
     @GetMapping(value = "/{modelResourceId}")
     public ResultEntity<ModelResourceEntity> getResourceById(@AuthenticationPrincipal String username, @PathVariable(value = "modelResourceId") String modelResourceId) {
         UserEntity userEntity = userService.getUserByUsername(username);
         return new ResultEntity<>(modelResourceService.getResourceById(modelResourceId, userEntity));
     }
 
-    // 根据ID修查询准规范
+    // 通过资源Id下载资源
     @GetMapping(value = "/{modelResourceId}/download")
     public void downloadResourceById(HttpServletResponse httpServletResponse, @AuthenticationPrincipal String username, @PathVariable(value = "modelResourceId") String modelResourceId) throws IOException {
         UserEntity userEntity = userService.getUserByUsername(username);
@@ -80,14 +80,14 @@ public class ModelResourceController {
         httpServletResponse.flushBuffer();
     }
 
-    // 根据ID修查询准规范
+    // 通过用户获取资源
     @GetMapping(value = "/by/user")
     public ResultEntity<Page<ModelResourceEntity>> getResourcesByUser(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         UserEntity userEntity = userService.getUserByUsername(username);
         return new ResultEntity<>(modelResourceService.getResourcesByUser(pageable, userEntity));
     }
 
-    // 根据ID修查询准规范
+
     @GetMapping
     public ResultEntity<Page<ModelResourceEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(modelResourceService.getResources(pageable));

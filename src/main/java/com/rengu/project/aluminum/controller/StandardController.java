@@ -62,14 +62,14 @@ public class StandardController {
         return new ResultEntity<>(standardService.updateResourceById(standardId, standardEntity, userEntity));
     }
 
-    // 根据ID修查询准规范
+    // 根据ID查询准规范
     @GetMapping(value = "/{standardId}")
     public ResultEntity<StandardEntity> getResourceById(@AuthenticationPrincipal String username, @PathVariable(value = "standardId") String standardId) {
         UserEntity userEntity = userService.getUserByUsername(username);
         return new ResultEntity<>(standardService.getResourceById(standardId, userEntity));
     }
 
-    // 根据ID修查询准规范
+    // 根据ID下载标准规范
     @GetMapping(value = "/{standardId}/download")
     public void downloadResourceById(HttpServletResponse httpServletResponse, @AuthenticationPrincipal String username, @PathVariable(value = "standardId") String standardId) throws IOException {
         UserEntity userEntity = userService.getUserByUsername(username);
@@ -83,14 +83,14 @@ public class StandardController {
         httpServletResponse.flushBuffer();
     }
 
-    // 根据ID修查询准规范
+    // 根据用户名查询资源
     @GetMapping(value = "/by/user")
     public ResultEntity<Page<StandardEntity>> getResourcesByUser(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         UserEntity userEntity = userService.getUserByUsername(username);
         return new ResultEntity<>(standardService.getResourcesByUser(pageable, userEntity));
     }
 
-    // 根据ID修查询准规范
+
     @GetMapping
     public ResultEntity<Page<StandardEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(standardService.getResources(pageable));

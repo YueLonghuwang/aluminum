@@ -72,8 +72,8 @@ public enum ApplicationMessageEnum {
     RESOURCE_FILE_RESOURCE_ID_EXISTS(801, "该资源ID已存在"),
     RESOURCE_FILE_RESOURCE_ID_NOT_EXISTS(802, "该资源ID的资源文件不存在"),
     RESOURCE_FILE_NOT_EXISTS(803, "该资源文件不存在"),
-    RESOURCE_FILE_EXISTS(803, "该资源文件已存在");
-
+    RESOURCE_FILE_EXISTS(803, "该资源文件已存在"),
+    MESSAGE_ID_NOT_FOUND_ERROR(50015, "未发现该消息ID");
     private int code;
     private String message;
 
