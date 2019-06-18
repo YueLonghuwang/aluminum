@@ -152,7 +152,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll(pageable);
     }
 
-    // 安部门查询用户
+    // 按部门查询用户
     public Page<UserEntity> getUsersByDepartment(Pageable pageable, DepartmentEntity departmentEntity) {
         return userRepository.findByDepartment(pageable, departmentEntity);
     }

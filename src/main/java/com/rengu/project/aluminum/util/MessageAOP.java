@@ -67,9 +67,10 @@ public class MessageAOP {
             // 用户接口
             if (joinPoint.getTarget().getClass().equals(UserController.class)) {
                 String type = resultEntity.getData().getClass().toString();
-                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean")) {
+                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class org.springframework.data.domain.PageImpl")) {
                     return;
                 }
+                System.out.println(type);
                 UserEntity userEntity = (UserEntity) resultEntity.getData();
                 mainOperatorName = userService.getUserByUsername("admin").getUsername();                         // 操作人
                 arrangedPersonName = userEntity.getUsername();

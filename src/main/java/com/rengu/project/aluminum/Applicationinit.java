@@ -43,6 +43,17 @@ public class Applicationinit implements ApplicationRunner {
         initApplicationUser(applicationConfig.getDEFAULT_ADMIN_USER_USERNAME(), applicationConfig.getDEFAULT_ADMIN_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME()));
         initApplicationUser(applicationConfig.getDEFAULT_AUDIT_USER_USERNAME(), applicationConfig.getDEFAULT_AUDIT_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_AUDIT_ROLE_NAME()));
         initApplicationUser(applicationConfig.getDEFAULT_SECURITY_USER_USERNAME(), applicationConfig.getDEFAULT_SECURITY_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME()));
+
+        initApplicationUser(applicationConfig.getDEFAULT_USER1_USER_USERNAME(), applicationConfig.getDEFAULT_USER1_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME()));
+        initApplicationUser(applicationConfig.getDEFAULT_USER2_USER_USERNAME(), applicationConfig.getDEFAULT_USER2_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME()));
+        initApplicationUser(applicationConfig.getDEFAULT_USER3_USER_USERNAME(), applicationConfig.getDEFAULT_USER3_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME()));
+        initApplicationUser(applicationConfig.getDEFAULT_USER4_USER_USERNAME(), applicationConfig.getDEFAULT_USER4_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME()));
+        initApplicationUser(applicationConfig.getDEFAULT_USER5_USER_USERNAME(), applicationConfig.getDEFAULT_USER5_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME()));
+        initApplicationUser(applicationConfig.getDEFAULT_USER6_USER_USERNAME(), applicationConfig.getDEFAULT_USER6_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME()));
+        initApplicationUser(applicationConfig.getDEFAULT_USER7_USER_USERNAME(), applicationConfig.getDEFAULT_USER7_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME()));
+        initApplicationUser(applicationConfig.getDEFAULT_USER8_USER_USERNAME(), applicationConfig.getDEFAULT_USER8_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME()));
+        initApplicationUser(applicationConfig.getDEFAULT_USER9_USER_USERNAME(), applicationConfig.getDEFAULT_USER9_USER_PASSWORD(), roleService.getRoleByName(applicationConfig.getDEFAULT_SECURITY_ROLE_NAME()));
+
     }
 
     // 初始化角色方法

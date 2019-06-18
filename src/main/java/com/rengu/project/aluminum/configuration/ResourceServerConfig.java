@@ -20,6 +20,9 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         // 放行swagger2文档页面
         http.authorizeRequests().antMatchers("/tasks", "/process", "/flowable-modeler").permitAll();
         http.authorizeRequests().antMatchers("/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs").permitAll();
+        http.authorizeRequests().antMatchers("/ALUMINUM/**").permitAll();
         super.configure(http);
     }
+
+
 }

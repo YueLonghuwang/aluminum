@@ -68,9 +68,10 @@ public class UserController {
     }
 
     // 分页查询全部用户
-    @PreAuthorize(value = "hasRole('ADMIN')")
     @GetMapping
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     public ResultEntity<Page<UserEntity>> getUsers(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(userService.getUsers(pageable));
     }
+
 }
