@@ -14,4 +14,5 @@ public class AluminumApplication {
         SpringApplication.run(AluminumApplication.class, args);
     }
 
+
 }

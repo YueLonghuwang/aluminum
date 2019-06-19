@@ -15,10 +15,10 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 @Configuration
 @EnableResourceServer
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
-
     @Override
     public void configure(HttpSecurity http) throws Exception {
         // 放行swagger2文档页面
+        http.authorizeRequests().antMatchers("/tasks", "/process", "/flowable-modeler").permitAll();
         http.authorizeRequests().antMatchers("/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs").permitAll();
         super.configure(http);
     }
