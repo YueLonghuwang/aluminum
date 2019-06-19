@@ -1,3 +1,4 @@
+/*
 package com.rengu.project.aluminum.service;
 
 import com.rengu.project.aluminum.ApplicationConfig;
@@ -20,12 +21,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+*/
 /**
  * com.rengu.project.aluminum.service
  *
  * @author hanchangming
  * @date 2019-06-10
- */
+ *//*
+
 
 @Slf4j
 @Service
@@ -82,3 +85,4 @@ public class ChunkService {
         return new File(applicationConfig.getCHUNKS_SAVE_PATH() + File.separator + chunkEntity.getIdentifier() + File.separator + chunkEntity.getChunkNumber() + ".tmp");
     }
 }
+*/
