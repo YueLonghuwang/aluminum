@@ -1,5 +1,6 @@
 package com.rengu.project.aluminum.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rengu.project.aluminum.entity.ChunkEntity;
 import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.service.FileService;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -36,17 +38,26 @@ public class FileController {
     // 检查文件块是否存在
     @GetMapping(value = "/chunks")
     public void hasChunk(HttpServletResponse httpServletResponse, ChunkEntity chunk) throws IOException {
-
         if (!fileService.hasChunkEntity(chunk)) {
-            httpServletResponse.setCharacterEncoding("utf-8");
-            httpServletResponse.setContentType("application/json; charset=utf-8");
-            PrintWriter writer = httpServletResponse.getWriter();
-            Map map = new HashMap();
-            // 数组 包含当前的传递的块数 一个状态skipUpload
-            map.put("status", "success");
-            writer.write(map.toString());
             httpServletResponse.setStatus(HttpServletResponse.SC_GONE);
         }
+        httpServletResponse.setCharacterEncoding("utf-8");
+        httpServletResponse.setContentType("application/json; charset=utf-8");
+        PrintWriter writer = httpServletResponse.getWriter();
+        boolean boo = fileService.hasUpload(chunk);
+        List<Integer> chunkNumberList = fileService.getChunkNumbers(chunk);
+        Map<Object, Object> map = new HashMap<>();
+        // 数组 包含当前的传递的块数 一个状态skipUpload
+        ObjectMapper objectMapper = new ObjectMapper();
+        String s;
+        if (boo) {
+            map.put("skipUpload", true);
+            s = objectMapper.writeValueAsString(map);
+        } else {
+            map.put("chunkNumerList", chunkNumberList);
+            s = objectMapper.writeValueAsString(map);
+        }
+        writer.write(s);
     }
 
     // 根据MD5检查文件是否存在
@@ -55,7 +66,7 @@ public class FileController {
         return new ResultEntity<>(fileService.hasFileByMD5(MD5) ? fileService.getFileByMD5(MD5) : fileService.hasFileByMD5(MD5));
     }
 
-    // 检查文件块是否存在
+    // 保存文件块
     @PostMapping(value = "/chunks")
     public void saveChunk(ChunkEntity chunk, @RequestParam(value = "file") MultipartFile multipartFile) throws IOException {
         fileService.saveChunkEntity(chunk, multipartFile);

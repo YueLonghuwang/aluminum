@@ -15,9 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
@@ -90,7 +88,25 @@ public class StandardController {
         return new ResultEntity<>(standardService.getResourcesByUser(pageable, userEntity));
     }
 
-
+    // 根据ID预览文件
+    @GetMapping(value = "/{fileId}/readPDF")
+    private void readPdf(@PathVariable(value = "fileId") String fileId, HttpServletResponse response) {
+        response.reset();
+        response.setContentType("application/pdf");
+        try {
+            StandardEntity standardEntity = standardService.getResourceById(fileId);
+            File file = new File(standardEntity.getDescription());
+            FileInputStream fileInputStream = new FileInputStream(file);
+            OutputStream outputStream = response.getOutputStream();
+            IOUtils.write(IOUtils.toByteArray(fileInputStream), outputStream);
+            response.setHeader("Content-Disposition", "inline; filename= file");
+            outputStream.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @GetMapping
     public ResultEntity<Page<StandardEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(standardService.getResources(pageable));

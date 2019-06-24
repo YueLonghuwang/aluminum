@@ -35,6 +35,27 @@ public class UserController {
         this.roleService = roleService;
     }
 
+    // 管理员创建用户
+    @PostMapping("/saveByAdmin")
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
+    public ResultEntity<UserEntity> saveUserByAdmin(UserEntity userEntity, String departmentName, String... roleEntities) {
+        return new ResultEntity<>(userService.saveUserByAdmin(userEntity, departmentName, roleEntities));
+    }
+
+    // 管理员修改密码
+    @PostMapping("/{userId}/updatePwdByAdmin")
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
+    public ResultEntity<UserEntity> updatePwdByAdmin(@PathVariable(name = "userId") String userId, @RequestParam(name = "password") String password) {
+        return new ResultEntity<>(userService.updatePasswordById(userId, password));
+    }
+
+    // 管理员修改更改权限以及部门
+    @PostMapping("/{userId}/updateUserByAdmin")
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
+    public ResultEntity<UserEntity> updateUserByAdmin(@PathVariable(name = "userId") String userId, String departmentName, String... roleEntities) {
+        return new ResultEntity<>(userService.modifyRoleByAdmin(userId, departmentName, roleEntities));
+    }
+
     // 保存用户
     @PostMapping
     public ResultEntity<UserEntity> saveUser(UserEntity userEntity) {
@@ -43,6 +64,7 @@ public class UserController {
 
     // 根据Id删除用户
     @DeleteMapping(value = "/{userId}")
+    @PreAuthorize(value = "hasAnyRole('ROLE_ADMIN','ROLE_SECURITY')")
     public ResultEntity<UserEntity> deleteUserById(@PathVariable(name = "userId") String userId) {
         return new ResultEntity<>(userService.deleteUserById(userId));
     }
@@ -55,10 +77,10 @@ public class UserController {
     }
 
     // 根据id修改用户密级
-    @PreAuthorize(value = "hasRole('SECURITY')")
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PatchMapping(value = "/{userId}/security-classification")
-    public ResultEntity<UserEntity> updateSecurityClassificationById(@PathVariable(name = "userId") String userId, @RequestParam(name = "securityClassification") int securityClassification) {
-        return new ResultEntity<>(userService.updateSecurityClassificationById(userId, securityClassification));
+    public ResultEntity<UserEntity> updateSecurityClassificationById(@PathVariable(name = "userId") String userId, @RequestParam(name = "securityClassification") int securityClassification, String... roleEntities) {
+        return new ResultEntity<>(userService.updateSecurityClassificationById(userId, securityClassification, roleEntities));
     }
 
     // 根据Id查询用户信息
@@ -73,5 +95,4 @@ public class UserController {
     public ResultEntity<Page<UserEntity>> getUsers(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(userService.getUsers(pageable));
     }
-
 }

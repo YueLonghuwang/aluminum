@@ -1,3 +1,4 @@
+/*
 package com.rengu.project.aluminum.configuration.properties;
 
 public class DataSourceConfigProperty {
@@ -45,3 +46,4 @@ public class DataSourceConfigProperty {
     }
 
 }
+*/

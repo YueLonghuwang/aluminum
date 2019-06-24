@@ -67,9 +67,9 @@ public class ModelResourceController {
     }
 
     // 通过资源Id下载资源
-    @GetMapping(value = "/{modelResourceId}/download")
-    public void downloadResourceById(HttpServletResponse httpServletResponse, @AuthenticationPrincipal String username, @PathVariable(value = "modelResourceId") String modelResourceId) throws IOException {
-        UserEntity userEntity = userService.getUserByUsername(username);
+    @GetMapping(value = "/{userId}/{modelResourceId}/download")
+    public void downloadResourceById(HttpServletResponse httpServletResponse, @PathVariable(value = "userId") String userId, @PathVariable(value = "modelResourceId") String modelResourceId) throws IOException {
+        UserEntity userEntity = userService.getUserById(userId);
         File compressFile = modelResourceService.downloadResourceById(modelResourceId, userEntity);
         String mimeType = URLConnection.guessContentTypeFromName(compressFile.getName()) == null ? "application/octet-stream" : URLConnection.guessContentTypeFromName(compressFile.getName());
         httpServletResponse.setContentType(mimeType);

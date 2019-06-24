@@ -1,3 +1,4 @@
+/*
 package com.rengu.project.aluminum.service;
 
 import org.flowable.engine.ProcessEngine;
@@ -10,10 +11,12 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+*/
 /**
  * author : yaojiahao
  * Date: 2019/6/18 10:48
- **/
+ **//*
+
 @Service
 public class FlowableService {
     private final RuntimeService runtimeService;
@@ -41,3 +44,4 @@ public class FlowableService {
 
     // 查询流程列表，待办列表
 }
+*/
