@@ -1,3 +1,4 @@
+/*
 package com.rengu.project.aluminum.controller;
 
 import com.rengu.project.aluminum.entity.ResultEntity;
@@ -11,10 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+*/
 /**
  * author : yaojiahao
  * Date: 2019/6/18 9:49
- */
+ *//*
+
 
 
 @RestController
@@ -40,3 +43,4 @@ public class FlowableController {
         return new ResultEntity<>(null);
     }
 }
+*/

@@ -18,6 +18,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         // 放行swagger2文档页面
+        http.authorizeRequests().antMatchers("/modelResource/**").permitAll();
         http.authorizeRequests().antMatchers("/tasks", "/process", "/flowable-modeler").permitAll();
         http.authorizeRequests().antMatchers("/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs").permitAll();
         http.authorizeRequests().antMatchers("/ALUMINUM/**").permitAll();

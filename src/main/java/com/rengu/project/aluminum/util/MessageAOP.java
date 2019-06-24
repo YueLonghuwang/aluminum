@@ -90,7 +90,7 @@ public class MessageAOP {
             // 模型资源管理
             if (joinPoint.getTarget().getClass().equals(ModelResourceController.class)) {
                 String type = resultEntity.getData().getClass().toString();
-                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap")) {
+                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap") || type.equals("class org.springframework.data.domain.PageImpl")) {
                     return;
                 }
                 ModelResourceEntity modelResourceEntity = (ModelResourceEntity) resultEntity.getData();
@@ -124,7 +124,7 @@ public class MessageAOP {
             // 标准规范管理
             if (joinPoint.getTarget().getClass().equals(StandardController.class)) {
                 String type = resultEntity.getData().getClass().toString();
-                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap")) {
+                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap") || type.equals("class org.springframework.data.domain.PageImpl")) {
                     return;
                 }
                 StandardEntity standardEntity = (StandardEntity) resultEntity.getData();
@@ -158,7 +158,7 @@ public class MessageAOP {
             // 公共算法/服务管理
             if (joinPoint.getTarget().getClass().equals(AlgorithmAndServerController.class)) {
                 String type = resultEntity.getData().getClass().toString();
-                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap")) {
+                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap") || type.equals("class org.springframework.data.domain.PageImpl")) {
                     return;
                 }
                 AlgorithmAndServerEntity algorithmAndServerEntity = (AlgorithmAndServerEntity) resultEntity.getData();
@@ -192,7 +192,7 @@ public class MessageAOP {
             // 工具/软件管理
             if (joinPoint.getTarget().getClass().equals(ToolsAndSoftwareEntity.class)) {
                 String type = resultEntity.getData().getClass().toString();
-                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap")) {
+                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap") || type.equals("class org.springframework.data.domain.PageImpl")) {
                     return;
                 }
                 ToolsAndSoftwareEntity toolsAndSoftwareEntity = (ToolsAndSoftwareEntity) resultEntity.getData();

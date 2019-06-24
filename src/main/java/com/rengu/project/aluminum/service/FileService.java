@@ -6,6 +6,7 @@ import com.rengu.project.aluminum.entity.ChunkEntity;
 import com.rengu.project.aluminum.entity.FileEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.exception.FileException;
+import com.rengu.project.aluminum.repository.ChunkRepository;
 import com.rengu.project.aluminum.repository.FileRepository;
 import com.rengu.project.aluminum.util.FileMergeUtils;
 import lombok.Cleanup;
@@ -28,8 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -45,14 +45,16 @@ public class FileService {
     private final FileRepository fileRepository;
     private final ApplicationConfig applicationConfig;
     private final FileMergeUtils fileMergeUtils;
+    private final ChunkRepository chunkRepository;
     private int concurrentNum = 3;
     int switchNum = concurrentNum;
 
     @Autowired
-    public FileService(ApplicationConfig applicationConfig, FileRepository fileRepository, FileMergeUtils fileMergeUtils) {
+    public FileService(ApplicationConfig applicationConfig, FileRepository fileRepository, FileMergeUtils fileMergeUtils, ChunkRepository chunkRepository) {
         this.applicationConfig = applicationConfig;
         this.fileRepository = fileRepository;
         this.fileMergeUtils = fileMergeUtils;
+        this.chunkRepository = chunkRepository;
     }
 
     // 根据Md5判断文件是否存在
@@ -63,9 +65,34 @@ public class FileService {
         return fileRepository.existsByMD5(MD5);
     }
 
+    // 查询当前文件块数量并返回集合数量
+    public List<Integer> getChunkNumbers(ChunkEntity chunkEntity) {
+        Optional<ChunkEntity> chunkEntityOptional = chunkRepository.findById(chunkEntity.getIdentifier());
+        if (chunkEntityOptional.isPresent()) {
+            int chunkNumbers = chunkEntityOptional.get().getChunkNumber();
+            List<Integer> chunkList = new ArrayList<>();
+            for (int chunkNumber = 1; chunkNumber <= chunkNumbers; chunkNumber++) {
+                chunkList.add(chunkNumber);
+            }
+            return chunkList;
+        }
+        chunkRepository.save(chunkEntity);
+        return null;
+    }
+
     // 保存文件块
     public void saveChunkEntity(ChunkEntity chunkEntity, MultipartFile multipartFile) throws IOException {
         java.io.File chunk = new java.io.File(applicationConfig.getCHUNKS_SAVE_PATH() + java.io.File.separator + chunkEntity.getIdentifier() + java.io.File.separator + chunkEntity.getChunkNumber() + ".tmp");
+        Optional<ChunkEntity> chunkEntityOptional = chunkRepository.findById(chunkEntity.getIdentifier());
+        // 如果当前文件块不为空 存储当前文件块数量
+        if (chunkEntityOptional.isPresent()) {
+            chunkRepository.save(chunkEntity);
+        }
+        //  如果当前文件块与总文件块一致
+        if (chunkEntity.getChunkNumber() == chunkEntity.getTotalChunks()) {
+            chunkEntity.setSkipUpload(true);
+            chunkRepository.save(chunkEntity);
+        }
         chunk.getParentFile().mkdirs();
         chunk.createNewFile();
         IOUtils.copy(multipartFile.getInputStream(), new FileOutputStream(chunk));
@@ -79,6 +106,14 @@ public class FileService {
         fileRepository.delete(files);
         return files;
     }
+
+    // 检查文件块是否上传过
+    public boolean hasUpload(ChunkEntity chunkEntity) {
+        Optional<ChunkEntity> chunkEntityOptional = chunkRepository.findById(chunkEntity.getIdentifier());
+        return chunkEntityOptional.map(ChunkEntity::isSkipUpload).orElse(false);
+    }
+
+
 
     // 检查文件块是否存在
     public boolean hasChunkEntity(ChunkEntity chunkEntity) {
