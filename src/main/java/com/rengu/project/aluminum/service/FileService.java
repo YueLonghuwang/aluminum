@@ -140,7 +140,7 @@ public class FileService {
     }
 
     // 根据MD5查询文件
-    public FileEntity getFileByMD5(String MD5) throws InterruptedException {
+    public FileEntity getFileByMD5(String MD5) {
         if (!hasFileByMD5(MD5)) {
             throw new FileException(ApplicationMessageEnum.FILE_MD5_NOT_EXISTS);
         }
@@ -195,11 +195,7 @@ public class FileService {
         @Cleanup FileInputStream fileInputStream = new FileInputStream(file);
         String MD5 = DigestUtils.md5Hex(fileInputStream);
         if (hasFileByMD5(MD5)) {
-            try {
                 return getFileByMD5(MD5);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
         log.warn("现在是在保存文件信息!!!!!");
         filesEntity.setMD5(MD5);         // MD5
