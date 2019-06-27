@@ -34,6 +34,12 @@ public class ApplicationConfig {
     private String DEFAULT_AUDIT_USER_USERNAME;
     private String DEFAULT_AUDIT_USER_PASSWORD;
 
+    // 默认部门
+    private String DEFAULT_PROOF_NAME;
+    private String DEFAULT_AUDIT_NAME;
+    private String DEFAULT_COUNT_NAME;
+    private String DEFAULT_APPROVE_NAME;
+
     // OAuth2配置
     private String OAUTH_CLIENT_ID;
     private String OAUTH_CLIENT_SECRET;
