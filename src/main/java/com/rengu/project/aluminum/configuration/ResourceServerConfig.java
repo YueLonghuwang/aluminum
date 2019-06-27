@@ -30,7 +30,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http.authorizeRequests().antMatchers("/tasks", "/process", "/flowable-modeler").permitAll();
         http.authorizeRequests().antMatchers("/swagger-ui.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs").permitAll();
         http.authorizeRequests().antMatchers("/ALUMINUM/**").permitAll();
-//        super.configure(http);
+        http.authorizeRequests().anyRequest().authenticated();
     }
 
 
