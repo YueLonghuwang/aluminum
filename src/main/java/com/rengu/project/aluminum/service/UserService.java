@@ -6,6 +6,8 @@ import com.rengu.project.aluminum.entity.RoleEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
+import com.rengu.project.aluminum.exception.DepartmentException;
+import com.rengu.project.aluminum.exception.RoleException;
 import com.rengu.project.aluminum.exception.UserException;
 import com.rengu.project.aluminum.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -41,10 +43,14 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final ApplicationConfig applicationConfig;
+    private final RoleService roleService;
+    private final DepartmentService departmentService;
 
-    public UserService(UserRepository userRepository, ApplicationConfig applicationConfig) {
+    public UserService(UserRepository userRepository, ApplicationConfig applicationConfig, RoleService roleService, DepartmentService departmentService) {
         this.userRepository = userRepository;
         this.applicationConfig = applicationConfig;
+        this.roleService = roleService;
+        this.departmentService = departmentService;
     }
 
     @Override
@@ -54,6 +60,25 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException(username + "不存在或不合法");
         }
         return userEntityOptional.get();
+    }
+
+    // 管理员新建用户
+    @CachePut(value = "user_cache", key = "#userEntity.getId()")
+    public UserEntity saveUserByAdmin(UserEntity userEntity, String departmentName, String... roleEntitys) {
+        verificationInfo(userEntity, departmentName);
+        RoleEntity roleEntity = null;
+        for (String roleNames : roleEntitys) {
+            if (!roleService.hasRoleByName(roleNames)) {
+                throw new RoleException(ApplicationMessageEnum.ROLE_NAME_NOT_FOUND);
+            } else {
+                roleEntity = roleService.getRoleByName(roleNames);
+            }
+
+        }
+        userEntity.setDepartment(departmentService.getDepartmentByName(departmentName));
+        userEntity.setPassword(new BCryptPasswordEncoder().encode(userEntity.getPassword()));
+        userEntity.setRoleEntities(new HashSet<>(Arrays.asList(roleEntity)));
+        return userRepository.save(userEntity);
     }
 
     // 保存用户
@@ -104,19 +129,22 @@ public class UserService implements UserDetailsService {
         return userRepository.save(userEntity);
     }
 
-    // 根据id修改用户密级
+    // 根据id修改用户部门
     @CachePut(value = "user_cache", key = "#userId")
-    public UserEntity updateDepartmentById(String userId, DepartmentEntity departmentEntity) {
+    public UserEntity updateDepartmentById(String userId, String departmentId) {
+        if (!departmentService.hasDepartmentById(departmentId)) {
+            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_EXISTS);
+        }
         UserEntity userEntity = getUserById(userId);
-        userEntity.setDepartment(departmentEntity);
+        userEntity.setDepartment(departmentService.getDepartmentById(departmentId));
         return userRepository.save(userEntity);
     }
 
-    // 根据id修改用户密级
+    // 根据id修改用户部门
     public Set<UserEntity> updateDepartmentByIds(String[] userIds, DepartmentEntity departmentEntity) {
         Set<UserEntity> userEntitySet = new HashSet<>();
         for (String userId : userIds) {
-            userEntitySet.add(updateDepartmentById(userId, departmentEntity));
+            userEntitySet.add(updateDepartmentById(userId, departmentEntity.getId()));
         }
         return userEntitySet;
     }
@@ -147,12 +175,18 @@ public class UserService implements UserDetailsService {
         return userEntityOptional.get();
     }
 
-    // 分页查询全部用户
-    public Page<UserEntity> getUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+    // 分页查询全部用户(根据权限查询)
+    public Page<UserEntity> getUsers(String username, Pageable pageable) {
+        UserEntity userEntity = getUserByUsername(username);
+        for (RoleEntity roleEntity : userEntity.getRoleEntities()) {
+            if (roleEntity.getName().equals(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME())) {
+                return userRepository.findAllByUsernameNot(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME(), pageable);
+            }
+        }
+        return userRepository.findAllByUsernameNotAndUsernameNot(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME(), applicationConfig.getDEFAULT_AUDIT_ROLE_NAME(), pageable);
     }
 
-    // 安部门查询用户
+    // 按部门查询用户
     public Page<UserEntity> getUsersByDepartment(Pageable pageable, DepartmentEntity departmentEntity) {
         return userRepository.findByDepartment(pageable, departmentEntity);
     }
@@ -172,6 +206,53 @@ public class UserService implements UserDetailsService {
         return userEntitySet;
     }
 
+    // 管理员修改用户权限
+    public UserEntity modifyRoleByAdmin(String userId, String departmentName, String... roleEntities) {
+        UserEntity userEntity = getUserById(userId);
+        if (StringUtils.isEmpty(userEntity.getUsername())) {
+            throw new UserException(ApplicationMessageEnum.USER_USERNAME_NOT_FOUND);
+        }
+        if (!hasUserByUsername(userEntity.getUsername())) {
+            throw new UserException(ApplicationMessageEnum.USER_USERNAME_NOT_FOUND);
+        }
+        if (StringUtils.isEmpty(userEntity.getPassword())) {
+            throw new UserException(ApplicationMessageEnum.USER_PASSWORD_NOT_FOUND);
+        }
+        if (!departmentService.hasDepartmentByName(departmentName)) {
+            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_FOUND);
+        }
+        RoleEntity roleEntity = null;
+        for (String roleNames : roleEntities) {
+            if (!roleService.hasRoleByName(roleNames)) {
+                throw new RoleException(ApplicationMessageEnum.ROLE_NAME_NOT_FOUND);
+            } else {
+                if (roleNames.equals(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME())) {
+                    throw new RoleException(ApplicationMessageEnum.ERROR_PERMISSION_DENIED);
+                } else {
+                    roleEntity = roleService.getRoleByName(roleNames);
+                }
+
+            }
+        }
+        userEntity.setDepartment(departmentService.getDepartmentByName(departmentName));
+        userEntity.setRoleEntities(new HashSet<>(Arrays.asList(roleEntity)));
+        return userRepository.save(userEntity);
+    }
+
+    private void verificationInfo(UserEntity userEntity, String departmentName) {
+        if (StringUtils.isEmpty(userEntity.getUsername())) {
+            throw new UserException(ApplicationMessageEnum.USER_USERNAME_NOT_FOUND);
+        }
+        if (hasUserByUsername(userEntity.getUsername())) {
+            throw new UserException(ApplicationMessageEnum.USER_USERNAME_EXISTS);
+        }
+        if (StringUtils.isEmpty(userEntity.getPassword())) {
+            throw new UserException(ApplicationMessageEnum.USER_PASSWORD_NOT_FOUND);
+        }
+        if (!departmentService.hasDepartmentByName(departmentName)) {
+            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_FOUND);
+        }
+    }
 
     // 根据用户名判断用户是否存在
     public boolean hasUserByUsername(String username) {
@@ -180,4 +261,14 @@ public class UserService implements UserDetailsService {
         }
         return userRepository.existsByUsername(username);
     }
+
+    public UserEntity updateDepartmentByAdmin(String departmentName, UserEntity userEntity) {
+        if (!departmentService.hasDepartmentByName(departmentName)) {
+            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_FOUND);
+        }
+        DepartmentEntity departmentEntity = departmentService.getDepartmentByName(departmentName);
+        userEntity.setDepartment(departmentEntity);
+        return userRepository.save(userEntity);
+    }
+
 }

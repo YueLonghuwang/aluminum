@@ -3,8 +3,10 @@ package com.rengu.project.aluminum.controller;
 import com.rengu.project.aluminum.entity.AlgorithmAndServerEntity;
 import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
+import com.rengu.project.aluminum.repository.AlgorithmAndServerRepository;
 import com.rengu.project.aluminum.service.AlgorithmAndServerService;
 import com.rengu.project.aluminum.service.UserService;
+import com.rengu.project.aluminum.specification.Filter;
 import org.apache.commons.io.IOUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,8 @@ import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
+import static com.rengu.project.aluminum.specification.SpecificationBuilder.selectFrom;
+
 /**
  * author : yaojiahao
  * Date: 2019/6/13 14:31
@@ -30,10 +34,12 @@ import java.nio.charset.StandardCharsets;
 public class AlgorithmAndServerController {
     private final AlgorithmAndServerService algorithmAndServerService;
     private final UserService userService;
+    private final AlgorithmAndServerRepository algorithmAndServerRepository;
 
-    public AlgorithmAndServerController(AlgorithmAndServerService algorithmAndServerService, UserService userService) {
+    public AlgorithmAndServerController(AlgorithmAndServerService algorithmAndServerService, UserService userService, AlgorithmAndServerRepository algorithmAndServerRepository) {
         this.algorithmAndServerService = algorithmAndServerService;
         this.userService = userService;
+        this.algorithmAndServerRepository = algorithmAndServerRepository;
     }
 
     // 保存标准规范
@@ -43,6 +49,11 @@ public class AlgorithmAndServerController {
         return new ResultEntity<>(algorithmAndServerService.saveResource(algorithmAndServerEntity, userEntity));
     }
 
+    // 根据关键字查询
+    @PostMapping("/KeyWord")
+    public ResultEntity findByKeyWord(@RequestBody Filter filter) {
+        return new ResultEntity(selectFrom(algorithmAndServerRepository).where(filter).findAll());
+    }
     // 根据ID删除标准规范
     @DeleteMapping(value = "/{algorithmAndServerId}")
     public ResultEntity<AlgorithmAndServerEntity> deleteResourceById(@AuthenticationPrincipal String username, @PathVariable(value = "algorithmAndServerId") String algorithmAndServerId) throws IOException {
@@ -65,9 +76,9 @@ public class AlgorithmAndServerController {
     }
 
     // 根据ID修查询准规范
-    @GetMapping(value = "/{algorithmAndServerId}/download")
-    public void downloadResourceById(HttpServletResponse httpServletResponse, @AuthenticationPrincipal String username, @PathVariable(value = "algorithmAndServerId") String algorithmAndServerId) throws IOException {
-        UserEntity userEntity = userService.getUserByUsername(username);
+    @GetMapping(value = "/{userId}/{algorithmAndServerId}/download")
+    public void downloadResourceById(HttpServletResponse httpServletResponse, @PathVariable(value = "userId") String userId, @PathVariable(value = "algorithmAndServerId") String algorithmAndServerId) throws IOException {
+        UserEntity userEntity = userService.getUserById(userId);
         File compressFile = algorithmAndServerService.downloadResourceById(algorithmAndServerId, userEntity);
         String mimeType = URLConnection.guessContentTypeFromName(compressFile.getName()) == null ? "application/octet-stream" : URLConnection.guessContentTypeFromName(compressFile.getName());
         httpServletResponse.setContentType(mimeType);

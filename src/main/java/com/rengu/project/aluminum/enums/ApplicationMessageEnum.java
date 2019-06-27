@@ -60,7 +60,7 @@ public enum ApplicationMessageEnum {
     RESOURCE_VERSION_NOT_FOUND(700, "资源版本号不存在或不合法"),
     RESOURCE_VERSION_EXISTS(701, "该资源版本号已存在"),
     RESOURCE_VERSION_NOT_EXISTS(702, "该版本号的资源不存在"),
-    RESOURCE_NAME_AND_VERSION_EXISTS(702, "该名称及版本好的的资源已存在"),
+    RESOURCE_NAME_AND_VERSION_EXISTS(702, "该名称及版本号的的资源已存在"),
     // 抽象资源文件提示信息
     RESOURCE_FILE_ID_NOT_FOUND(800, "资源文件ID不存在或不合法"),
     RESOURCE_FILE_ID_EXISTS(801, "该资源文件ID已存在"),
@@ -73,7 +73,9 @@ public enum ApplicationMessageEnum {
     RESOURCE_FILE_RESOURCE_ID_NOT_EXISTS(802, "该资源ID的资源文件不存在"),
     RESOURCE_FILE_NOT_EXISTS(803, "该资源文件不存在"),
     RESOURCE_FILE_EXISTS(803, "该资源文件已存在"),
-    MESSAGE_ID_NOT_FOUND_ERROR(50015, "未发现该消息ID");
+    MESSAGE_ID_NOT_FOUND_ERROR(50015, "未发现该消息ID"),
+    // 权限验证
+    ERROR_PERMISSION_DENIED(901, "权限不足");
     private int code;
     private String message;
 

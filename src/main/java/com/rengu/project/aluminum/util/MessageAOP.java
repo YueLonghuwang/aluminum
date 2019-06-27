@@ -24,6 +24,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+//import com.rengu.project.aluminum.controller.StandardController;
+
 /**
  * author : yaojiahao
  * Date: 2019/6/17 8:57
@@ -67,9 +69,10 @@ public class MessageAOP {
             // 用户接口
             if (joinPoint.getTarget().getClass().equals(UserController.class)) {
                 String type = resultEntity.getData().getClass().toString();
-                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean")) {
+                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class org.springframework.data.domain.PageImpl")) {
                     return;
                 }
+                System.out.println(type);
                 UserEntity userEntity = (UserEntity) resultEntity.getData();
                 mainOperatorName = userService.getUserByUsername("admin").getUsername();                         // 操作人
                 arrangedPersonName = userEntity.getUsername();
@@ -89,7 +92,7 @@ public class MessageAOP {
             // 模型资源管理
             if (joinPoint.getTarget().getClass().equals(ModelResourceController.class)) {
                 String type = resultEntity.getData().getClass().toString();
-                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap")) {
+                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap") || type.equals("class org.springframework.data.domain.PageImpl")) {
                     return;
                 }
                 ModelResourceEntity modelResourceEntity = (ModelResourceEntity) resultEntity.getData();
@@ -123,7 +126,7 @@ public class MessageAOP {
             // 标准规范管理
             if (joinPoint.getTarget().getClass().equals(StandardController.class)) {
                 String type = resultEntity.getData().getClass().toString();
-                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap")) {
+                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap") || type.equals("class org.springframework.data.domain.PageImpl")) {
                     return;
                 }
                 StandardEntity standardEntity = (StandardEntity) resultEntity.getData();
@@ -157,7 +160,7 @@ public class MessageAOP {
             // 公共算法/服务管理
             if (joinPoint.getTarget().getClass().equals(AlgorithmAndServerController.class)) {
                 String type = resultEntity.getData().getClass().toString();
-                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap")) {
+                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap") || type.equals("class org.springframework.data.domain.PageImpl")) {
                     return;
                 }
                 AlgorithmAndServerEntity algorithmAndServerEntity = (AlgorithmAndServerEntity) resultEntity.getData();
@@ -191,7 +194,7 @@ public class MessageAOP {
             // 工具/软件管理
             if (joinPoint.getTarget().getClass().equals(ToolsAndSoftwareEntity.class)) {
                 String type = resultEntity.getData().getClass().toString();
-                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap")) {
+                if (type.equals("class java.util.ArrayList") || type.equals("class java.lang.Boolean") || type.equals("class java.util.HashMap") || type.equals("class org.springframework.data.domain.PageImpl")) {
                     return;
                 }
                 ToolsAndSoftwareEntity toolsAndSoftwareEntity = (ToolsAndSoftwareEntity) resultEntity.getData();

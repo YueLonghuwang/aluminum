@@ -92,13 +92,13 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         return new CustomTokenEnhancer();
     }
 
+
     public class CustomTokenEnhancer implements TokenEnhancer {
         @Override
         public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
             UserEntity loginUsers = userService.getUserByUsername(authentication.getName());
             Map<String, Object> additionalInfo = new HashMap<>();
             additionalInfo.put("userId", loginUsers.getId());
-            System.out.println(loginUsers.getId());
             ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
             return accessToken;
         }

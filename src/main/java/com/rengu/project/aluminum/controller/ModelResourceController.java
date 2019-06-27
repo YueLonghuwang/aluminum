@@ -3,8 +3,10 @@ package com.rengu.project.aluminum.controller;
 import com.rengu.project.aluminum.entity.ModelResourceEntity;
 import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
+import com.rengu.project.aluminum.repository.ModelResourceRepository;
 import com.rengu.project.aluminum.service.ModelResourceService;
 import com.rengu.project.aluminum.service.UserService;
+import com.rengu.project.aluminum.specification.Filter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,8 @@ import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
+import static com.rengu.project.aluminum.specification.SpecificationBuilder.selectFrom;
+
 /**
  * author : yaojiahao
  * Date: 2019/6/13 14:22
@@ -32,10 +36,12 @@ import java.nio.charset.StandardCharsets;
 public class ModelResourceController {
     private final ModelResourceService modelResourceService;
     private final UserService userService;
+    private final ModelResourceRepository modelResourceRepository;
 
-    public ModelResourceController(ModelResourceService modelResourceService, UserService userService) {
+    public ModelResourceController(ModelResourceService modelResourceService, UserService userService, ModelResourceRepository modelResourceRepository) {
         this.modelResourceService = modelResourceService;
         this.userService = userService;
+        this.modelResourceRepository = modelResourceRepository;
     }
 
     // 保存模型资源
@@ -45,21 +51,27 @@ public class ModelResourceController {
         return new ResultEntity<>(modelResourceService.saveResource(modelResourceEntity, userEntity));
     }
 
-    // 根据ID删除模型资源
+    // 根据关键字查询
+    @PostMapping("/KeyWord")
+    public ResultEntity findByKeyWord(@RequestBody Filter filter) {
+        return new ResultEntity(selectFrom(modelResourceRepository).where(filter).findAll());
+    }
+
+    // 根据ID删除模型资源   *
     @DeleteMapping(value = "/{modelResourceId}")
     public ResultEntity<ModelResourceEntity> deleteResourceById(@AuthenticationPrincipal String username, @PathVariable(value = "modelResourceId") String modelResourceId) throws IOException {
         UserEntity userEntity = userService.getUserByUsername(username);
         return new ResultEntity<>(modelResourceService.deleteResourceById(modelResourceId, userEntity));
     }
 
-    // 根据ID修改模型资源
+    // 根据ID修改模型资源   *
     @PatchMapping(value = "/{modelResourceId}")
     public ResultEntity<ModelResourceEntity> updateResourceById(@AuthenticationPrincipal String username, @PathVariable(value = "modelResourceId") String modelResourceId, ModelResourceEntity modelResourceEntity) {
         UserEntity userEntity = userService.getUserByUsername(username);
         return new ResultEntity<>(modelResourceService.updateResourceById(modelResourceId, modelResourceEntity, userEntity));
     }
 
-    // 通过资源Id获取资源
+    // 通过资源Id获取资源   *
     @GetMapping(value = "/{modelResourceId}")
     public ResultEntity<ModelResourceEntity> getResourceById(@AuthenticationPrincipal String username, @PathVariable(value = "modelResourceId") String modelResourceId) {
         UserEntity userEntity = userService.getUserByUsername(username);
@@ -67,9 +79,9 @@ public class ModelResourceController {
     }
 
     // 通过资源Id下载资源
-    @GetMapping(value = "/{modelResourceId}/download")
-    public void downloadResourceById(HttpServletResponse httpServletResponse, @AuthenticationPrincipal String username, @PathVariable(value = "modelResourceId") String modelResourceId) throws IOException {
-        UserEntity userEntity = userService.getUserByUsername(username);
+    @GetMapping(value = "/{userId}/{modelResourceId}/download")
+    public void downloadResourceById(HttpServletResponse httpServletResponse, @PathVariable(value = "userId") String userId, @PathVariable(value = "modelResourceId") String modelResourceId) throws IOException {
+        UserEntity userEntity = userService.getUserById(userId);
         File compressFile = modelResourceService.downloadResourceById(modelResourceId, userEntity);
         String mimeType = URLConnection.guessContentTypeFromName(compressFile.getName()) == null ? "application/octet-stream" : URLConnection.guessContentTypeFromName(compressFile.getName());
         httpServletResponse.setContentType(mimeType);

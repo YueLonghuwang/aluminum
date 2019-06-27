@@ -45,7 +45,10 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
         super.securityCheck(modelResourceEntity, userEntity);
         super.saveResourceCheck(modelResourceEntity, userEntity);
         if (hasStandardByNameAndVersionAndStatus(modelResourceEntity.getName(), modelResourceEntity.getVersion(), ResourceStatusEnum.PASSED.getCode(), ResourceStatusEnum.REVIEWING.getCode())) {
-            throw new ResourceException(ApplicationMessageEnum.RESOURCE_NAME_AND_VERSION_EXISTS);
+            String modelId = getResourceByNameAndVersionAndStatus(modelResourceEntity.getName(), modelResourceEntity.getVersion(), ResourceStatusEnum.PASSED.getCode(), ResourceStatusEnum.REVIEWING.getCode()).getId();
+            if (resourceFileService.existsByResourceId(modelId)) {
+                throw new ResourceException(ApplicationMessageEnum.RESOURCE_NAME_AND_VERSION_EXISTS);
+            }
         }
         return modelResourceRepository.save(modelResourceEntity);
     }
@@ -148,5 +151,9 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
             return false;
         }
         return modelResourceRepository.existsByNameAndVersionAndStatusIn(name, version, status);
+    }
+
+    public ModelResourceEntity getResourceByNameAndVersionAndStatus(String name, String version, int... status) {
+        return modelResourceRepository.findByNameAndVersionAndStatusIn(name, version, status).get();
     }
 }

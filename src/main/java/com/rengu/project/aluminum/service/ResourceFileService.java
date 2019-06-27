@@ -4,7 +4,9 @@ import com.rengu.project.aluminum.entity.FileEntity;
 import com.rengu.project.aluminum.entity.FileMetaEntity;
 import com.rengu.project.aluminum.entity.ResourceFileEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
+import com.rengu.project.aluminum.exception.FileException;
 import com.rengu.project.aluminum.exception.ResourceFileException;
+import com.rengu.project.aluminum.repository.FileRepository;
 import com.rengu.project.aluminum.repository.ResourceFileRepository;
 import com.rengu.project.aluminum.util.CompressUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -32,24 +34,40 @@ public class ResourceFileService {
 
     private final ResourceFileRepository resourceFileRepository;
     private final FileService fileService;
+    private final FileRepository fileRepository;
 
-    public ResourceFileService(ResourceFileRepository resourceFileRepository, FileService fileService) {
+    public ResourceFileService(ResourceFileRepository resourceFileRepository, FileService fileService, FileRepository fileRepository) {
         this.resourceFileRepository = resourceFileRepository;
         this.fileService = fileService;
+        this.fileRepository = fileRepository;
+    }
+
+    // 根据资源ID查询文件
+    public boolean existsByResourceId(String resourceId) {
+        return resourceFileRepository.existsByResourceId(resourceId);
     }
 
     // 根据资源Id上传文件
-    public Set<ResourceFileEntity> uploadFiles(String resourceId, String parentNodeId, List<FileMetaEntity> fileMetaEntityList) {
+    public Set<ResourceFileEntity> uploadFiles(String resourceId, String parentNodeId, List<FileMetaEntity> fileMetaEntities) throws InterruptedException {
+        Thread.sleep(500);
         Set<ResourceFileEntity> resourceFileEntitySet = new HashSet<>();
-        for (FileMetaEntity fileMetaEntity : fileMetaEntityList) {
+        String splitter = File.separator.replace("\\", "\\\\");
+        for (FileMetaEntity fileMetaEntity : fileMetaEntities) {
             ResourceFileEntity parentNode = hasResourceFileById(parentNodeId) ? getResourceFileById(parentNodeId) : null;
-            String[] paths = FilenameUtils.separatorsToSystem(fileMetaEntity.getRelativePath()).split(File.separator);
+            String[] paths;
+            if (FilenameUtils.separatorsToSystem(fileMetaEntity.getRelativePath()).contains(File.separator)) {
+                paths = FilenameUtils.separatorsToSystem(fileMetaEntity.getRelativePath()).split(splitter);
+            } else {
+                paths = new String[1];
+                paths[0] = fileMetaEntity.getRelativePath();
+            }
             for (int i = 0; i < paths.length; i++) {
                 String path = paths[i];
                 if (!StringUtils.isEmpty(path)) {
                     if (i == paths.length - 1) {
                         // 最后一级路径-文件
                         ResourceFileEntity resourceFileEntity;
+                        // FilenameUtils.getBaseName 文件名 FilenameUtils.getExtension文件后缀名
                         if (hasResourceFileByNameAndExtensionAndParentNodeAndResourceIdAndFolder(FilenameUtils.getBaseName(path), FilenameUtils.getExtension(path), parentNode, resourceId, false)) {
                             resourceFileEntity = getResourceFileByNameAndExtensionAndParentNodeAndResourceIdAndFolder(FilenameUtils.getBaseName(path), FilenameUtils.getExtension(path), parentNode, resourceId, false);
                             resourceFileEntity.setCreateTime(new Date());
@@ -61,7 +79,7 @@ public class ResourceFileService {
                         }
                         resourceFileEntity.setName(FilenameUtils.getBaseName(path));
                         resourceFileEntity.setExtension(FilenameUtils.getExtension(path));
-                        resourceFileEntity.setFileEntity(fileService.getFileById(fileMetaEntity.getFileId()));
+                        resourceFileEntity.setFileEntity(getFileByMD5(fileMetaEntity.getFileId()));
                         resourceFileEntitySet.add(resourceFileRepository.save(resourceFileEntity));
                     } else {
                         // 中间路径-文件夹
@@ -82,6 +100,15 @@ public class ResourceFileService {
             }
         }
         return resourceFileEntitySet;
+    }
+
+    // 查询md5是否存在
+    public FileEntity getFileByMD5(String MD5) throws InterruptedException {
+        log.info(MD5);
+        if (!fileRepository.findByMD5(MD5).isPresent()) {
+            throw new FileException(ApplicationMessageEnum.FILE_MD5_NOT_EXISTS);
+        }
+        return fileRepository.findByMD5(MD5).get();
     }
 
     // 根据资源Id创建文件夹
@@ -266,4 +293,5 @@ public class ResourceFileService {
         }
         return FilenameUtils.separatorsToSystem(basePath);
     }
+
 }

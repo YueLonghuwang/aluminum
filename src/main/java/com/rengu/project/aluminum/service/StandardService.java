@@ -1,12 +1,15 @@
 package com.rengu.project.aluminum.service;
 
-import com.rengu.project.aluminum.entity.StandardEntity;
-import com.rengu.project.aluminum.entity.UserEntity;
+import com.rengu.project.aluminum.entity.*;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.enums.ResourceStatusEnum;
 import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import com.rengu.project.aluminum.exception.ResourceException;
+import com.rengu.project.aluminum.repository.ResourceFileRepository;
 import com.rengu.project.aluminum.repository.StandardRepository;
+import com.rengu.project.aluminum.util.PdfFileConventer;
+import com.rengu.project.aluminum.util.PreviewFileInit;
+import com.rengu.project.aluminum.util.SHAUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,7 +23,9 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.*;
+
+//import com.rengu.project.aluminum.util.PreviewFileInit;
 
 /**
  * com.rengu.project.aluminum.service
@@ -36,10 +41,18 @@ public class StandardService extends ResourceService<StandardEntity> {
 
     private final StandardRepository standardRepository;
     private final ResourceFileService resourceFileService;
+    private final PreviewFileInit previewFileInit;
+    private final PdfFileConventer pdfFileConventer;
+    private final FileService fileService;
+    private final ResourceFileRepository resourceFileRepository;
 
-    public StandardService(StandardRepository standardRepository, ResourceFileService resourceFileService) {
+    public StandardService(StandardRepository standardRepository, ResourceFileService resourceFileService, PreviewFileInit previewFileInit, PdfFileConventer pdfFileConventer, FileService fileService, ResourceFileRepository resourceFileRepository) {
         this.standardRepository = standardRepository;
         this.resourceFileService = resourceFileService;
+        this.previewFileInit = previewFileInit;
+        this.pdfFileConventer = pdfFileConventer;
+        this.fileService = fileService;
+        this.resourceFileRepository = resourceFileRepository;
     }
 
     @Override
@@ -142,4 +155,38 @@ public class StandardService extends ResourceService<StandardEntity> {
         }
         return standardRepository.existsByNameAndVersionAndStatusIn(name, version, status);
     }
+
+    // 根据资源ID查询该资源所有的文件
+    public List<Object> getAllFilesById(String resourceId) {
+        List<Object> fileEntityList = new ArrayList<>();
+        List<ResourceFileEntity> resourceFileEntityList = resourceFileRepository.findByResourceId(resourceId);
+        for (ResourceFileEntity resourceFileEntity : resourceFileEntityList) {
+            FileEntity fileEntity = resourceFileEntity.getFileEntity();
+            Map map = new HashMap<>();
+            map.put("FileEntity", resourceFileEntity.getFileEntity());
+            map.put("name", resourceFileEntity.getName());
+            fileEntityList.add(map);
+            log.info(fileEntity.getLocalPath());
+        }
+        return fileEntityList;
+    }
+
+    public PreviewFile readPDF(String fileId) {
+        FileEntity fileEntity = fileService.getFileById(fileId);
+//        ResourceFileEntity fileEntity = resourceFileService.getResourceFileById(fileId);
+//        String filePath = fileEntity.getFileEntity().getLocalPath();
+        return localAllFiles(fileEntity.getLocalPath());
+    }
+
+    private PreviewFile localAllFiles(String filePath) {
+        PreviewFile previewFile = new PreviewFile();
+        previewFile.setFilePath(filePath);
+        previewFile.setFileId(SHAUtil.SHAHashCode(filePath));
+        // 判断文件是否存在
+        //  拿到文件地址转换文件
+        previewFileInit.saveFile(previewFile);
+        pdfFileConventer.conventer(previewFile);
+        return previewFile;
+    }
+
 }

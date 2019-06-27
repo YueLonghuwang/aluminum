@@ -41,7 +41,8 @@ public class DepartmentService {
             throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_FOUND);
         }
         if (hasDepartmentByName(departmentEntity.getName())) {
-            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_EXISTS);
+            updateDepartmentById(departmentEntity.getId(), departmentEntity);
+//            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_EXISTS);
         }
         return departmentRepository.save(departmentEntity);
     }
@@ -77,7 +78,20 @@ public class DepartmentService {
         }
         Optional<DepartmentEntity> departmentEntityOptional = departmentRepository.findById(departmentId);
         if (!departmentEntityOptional.isPresent()) {
-            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_EXISTS);
+            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_EXISTS);
+        }
+        return departmentEntityOptional.get();
+    }
+
+    // 根据部门名称查询部门
+    @Cacheable(value = "department_cache", key = "#departmenName")
+    public DepartmentEntity getDepartmentByName(String departmenName) {
+        if (StringUtils.isEmpty(departmenName)) {
+            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_EXISTS);
+        }
+        Optional<DepartmentEntity> departmentEntityOptional = departmentRepository.findByName(departmenName);
+        if (!departmentEntityOptional.isPresent()) {
+            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_EXISTS);
         }
         return departmentEntityOptional.get();
     }
@@ -88,10 +102,18 @@ public class DepartmentService {
     }
 
     // 根据名称判断部门是否存在
-    public boolean hasDepartmentByName(String name) {
+    boolean hasDepartmentByName(String name) {
         if (StringUtils.isEmpty(name)) {
             return false;
         }
         return departmentRepository.existsByName(name);
+    }
+
+    // 根据ID判断部门是否存在
+    boolean hasDepartmentById(String id) {
+        if (StringUtils.isEmpty(id)) {
+            return false;
+        }
+        return departmentRepository.existsById(id);
     }
 }
