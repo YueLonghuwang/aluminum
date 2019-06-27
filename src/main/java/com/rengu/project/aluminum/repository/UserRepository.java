@@ -22,6 +22,9 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
 
     Optional<UserEntity> findByUsername(String username);
 
+    Page<UserEntity> findAllByUsernameNot(String username, Pageable pageable);
+
+    Page<UserEntity> findAllByUsernameNotAndUsernameNot(String username, String umbrages, Pageable pageable);
     boolean existsByUsername(String username);
 
     Page<UserEntity> findByDepartment(Pageable pageable, DepartmentEntity departmentEntity);

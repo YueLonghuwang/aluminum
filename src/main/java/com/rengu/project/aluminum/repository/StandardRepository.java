@@ -4,6 +4,7 @@ import com.rengu.project.aluminum.entity.StandardEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Repository;
  */
 
 @Repository
-public interface StandardRepository extends JpaRepository<StandardEntity, String> {
+public interface StandardRepository extends JpaRepository<StandardEntity, String>, JpaSpecificationExecutor<StandardEntity> {
 
     boolean existsByNameAndVersionAndStatusIn(String name, String version, int[] status);
 

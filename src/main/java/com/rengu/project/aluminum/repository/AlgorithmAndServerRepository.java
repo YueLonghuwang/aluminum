@@ -5,6 +5,7 @@ import com.rengu.project.aluminum.entity.ModelResourceEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Repository;
  * Date: 2019/6/13 14:31
  **/
 @Repository
-public interface AlgorithmAndServerRepository extends JpaRepository<AlgorithmAndServerEntity, String> {
+public interface AlgorithmAndServerRepository extends JpaRepository<AlgorithmAndServerEntity, String>, JpaSpecificationExecutor<AlgorithmAndServerEntity> {
     boolean existsByNameAndVersionAndStatusIn(String name, String version, int[] status);
 
     Page<ModelResourceEntity> findBySecurityClassificationLessThanEqualAndStatus(Pageable pageable, int securityClassification, int status);

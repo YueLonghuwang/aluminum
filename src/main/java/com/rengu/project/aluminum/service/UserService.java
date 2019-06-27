@@ -122,27 +122,21 @@ public class UserService implements UserDetailsService {
 
     // 根据id修改用户密级
     @CachePut(value = "user_cache", key = "#userId")
-    public UserEntity updateSecurityClassificationById(String userId, int securityClassification, String... roleEntities) {
+    public UserEntity updateSecurityClassificationById(String userId, int securityClassification) {
         SecurityClassificationEnum securityClassificationEnum = SecurityClassificationEnum.getEnum(securityClassification);
         UserEntity userEntity = getUserById(userId);
         userEntity.setSecurityClassification(securityClassificationEnum.getCode());
-        RoleEntity roleEntity = null;
-        for (String roleNames : roleEntities) {
-            if (!roleService.hasRoleByName(roleNames)) {
-                throw new RoleException(ApplicationMessageEnum.ROLE_NAME_NOT_FOUND);
-            } else {
-                roleEntity = roleService.getRoleByName(roleNames);
-            }
-        }
-        userEntity.setRoleEntities(new HashSet<>(Arrays.asList(roleEntity)));
         return userRepository.save(userEntity);
     }
 
     // 根据id修改用户部门
     @CachePut(value = "user_cache", key = "#userId")
-    public UserEntity updateDepartmentById(String userId, DepartmentEntity departmentEntity) {
+    public UserEntity updateDepartmentById(String userId, String departmentId) {
+        if (!departmentService.hasDepartmentById(departmentId)) {
+            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_EXISTS);
+        }
         UserEntity userEntity = getUserById(userId);
-        userEntity.setDepartment(departmentEntity);
+        userEntity.setDepartment(departmentService.getDepartmentById(departmentId));
         return userRepository.save(userEntity);
     }
 
@@ -150,7 +144,7 @@ public class UserService implements UserDetailsService {
     public Set<UserEntity> updateDepartmentByIds(String[] userIds, DepartmentEntity departmentEntity) {
         Set<UserEntity> userEntitySet = new HashSet<>();
         for (String userId : userIds) {
-            userEntitySet.add(updateDepartmentById(userId, departmentEntity));
+            userEntitySet.add(updateDepartmentById(userId, departmentEntity.getId()));
         }
         return userEntitySet;
     }
@@ -181,9 +175,15 @@ public class UserService implements UserDetailsService {
         return userEntityOptional.get();
     }
 
-    // 分页查询全部用户
-    public Page<UserEntity> getUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+    // 分页查询全部用户(根据权限查询)
+    public Page<UserEntity> getUsers(String username, Pageable pageable) {
+        UserEntity userEntity = getUserByUsername(username);
+        for (RoleEntity roleEntity : userEntity.getRoleEntities()) {
+            if (roleEntity.getName().equals(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME())) {
+                return userRepository.findAllByUsernameNot(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME(), pageable);
+            }
+        }
+        return userRepository.findAllByUsernameNotAndUsernameNot(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME(), applicationConfig.getDEFAULT_AUDIT_ROLE_NAME(), pageable);
     }
 
     // 按部门查询用户

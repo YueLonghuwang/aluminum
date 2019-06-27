@@ -3,8 +3,10 @@ package com.rengu.project.aluminum.controller;
 import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.ToolsAndSoftwareEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
+import com.rengu.project.aluminum.repository.ToolsAndSoftwareRepository;
 import com.rengu.project.aluminum.service.ToolsAndSoftwareService;
 import com.rengu.project.aluminum.service.UserService;
+import com.rengu.project.aluminum.specification.Filter;
 import org.apache.commons.io.IOUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,8 @@ import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
+import static com.rengu.project.aluminum.specification.SpecificationBuilder.selectFrom;
+
 /**
  * author : yaojiahao
  * Date: 2019/6/13 14:56
@@ -30,10 +34,12 @@ import java.nio.charset.StandardCharsets;
 public class ToolsAndSoftwareController {
     private final ToolsAndSoftwareService toolsAndSoftwareService;
     private final UserService userService;
+    private final ToolsAndSoftwareRepository toolsAndSoftwareRepository;
 
-    public ToolsAndSoftwareController(ToolsAndSoftwareService toolsAndSoftwareService, UserService userService) {
+    public ToolsAndSoftwareController(ToolsAndSoftwareService toolsAndSoftwareService, UserService userService, ToolsAndSoftwareRepository toolsAndSoftwareRepository) {
         this.toolsAndSoftwareService = toolsAndSoftwareService;
         this.userService = userService;
+        this.toolsAndSoftwareRepository = toolsAndSoftwareRepository;
     }
 
     // 保存标准规范
@@ -43,6 +49,11 @@ public class ToolsAndSoftwareController {
         return new ResultEntity<>(toolsAndSoftwareService.saveResource(toolsAndSoftwareEntity, userEntity));
     }
 
+    // 根据关键字查询
+    @PostMapping("/KeyWord")
+    public ResultEntity findByKeyWord(@RequestBody Filter filter) {
+        return new ResultEntity(selectFrom(toolsAndSoftwareRepository).where(filter).findAll());
+    }
     // 根据ID删除标准规范
     @DeleteMapping(value = "/{toolsAndSoftwareId}")
     public ResultEntity<ToolsAndSoftwareEntity> deleteResourceById(@AuthenticationPrincipal String username, @PathVariable(value = "toolsAndSoftwareId") String toolsAndSoftwareId) throws IOException {
@@ -65,9 +76,9 @@ public class ToolsAndSoftwareController {
     }
 
     // 根据ID修查询准规范
-    @GetMapping(value = "/{toolsAndSoftwareId}/download")
-    public void downloadResourceById(HttpServletResponse httpServletResponse, @AuthenticationPrincipal String username, @PathVariable(value = "toolsAndSoftwareId") String toolsAndSoftwareId) throws IOException {
-        UserEntity userEntity = userService.getUserByUsername(username);
+    @GetMapping(value = "/{userId}/{toolsAndSoftwareId}/download")
+    public void downloadResourceById(HttpServletResponse httpServletResponse, @PathVariable(value = "userId") String userId, @PathVariable(value = "toolsAndSoftwareId") String toolsAndSoftwareId) throws IOException {
+        UserEntity userEntity = userService.getUserById(userId);
         File compressFile = toolsAndSoftwareService.downloadResourceById(toolsAndSoftwareId, userEntity);
         String mimeType = URLConnection.guessContentTypeFromName(compressFile.getName()) == null ? "application/octet-stream" : URLConnection.guessContentTypeFromName(compressFile.getName());
         httpServletResponse.setContentType(mimeType);

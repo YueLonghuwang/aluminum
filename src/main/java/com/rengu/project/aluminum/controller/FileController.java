@@ -62,7 +62,7 @@ public class FileController {
 
     // 根据MD5检查文件是否存在
     @GetMapping(value = "/hasmd5")
-    public ResultEntity<java.io.Serializable> hasFileByMD5(@RequestParam(value = "MD5") String MD5) {
+    public ResultEntity<java.io.Serializable> hasFileByMD5(@RequestParam(value = "MD5") String MD5) throws InterruptedException {
         return new ResultEntity<>(fileService.hasFileByMD5(MD5) ? fileService.getFileByMD5(MD5) : fileService.hasFileByMD5(MD5));
     }
 

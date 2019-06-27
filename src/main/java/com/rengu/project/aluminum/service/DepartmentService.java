@@ -41,7 +41,8 @@ public class DepartmentService {
             throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_FOUND);
         }
         if (hasDepartmentByName(departmentEntity.getName())) {
-            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_EXISTS);
+            updateDepartmentById(departmentEntity.getId(), departmentEntity);
+//            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_EXISTS);
         }
         return departmentRepository.save(departmentEntity);
     }
@@ -90,7 +91,7 @@ public class DepartmentService {
         }
         Optional<DepartmentEntity> departmentEntityOptional = departmentRepository.findByName(departmenName);
         if (!departmentEntityOptional.isPresent()) {
-            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_EXISTS);
+            throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_EXISTS);
         }
         return departmentEntityOptional.get();
     }
@@ -106,5 +107,13 @@ public class DepartmentService {
             return false;
         }
         return departmentRepository.existsByName(name);
+    }
+
+    // 根据ID判断部门是否存在
+    boolean hasDepartmentById(String id) {
+        if (StringUtils.isEmpty(id)) {
+            return false;
+        }
+        return departmentRepository.existsById(id);
     }
 }

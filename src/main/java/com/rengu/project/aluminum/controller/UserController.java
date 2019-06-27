@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -79,8 +80,8 @@ public class UserController {
     // 根据id修改用户密级
     @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PatchMapping(value = "/{userId}/security-classification")
-    public ResultEntity<UserEntity> updateSecurityClassificationById(@PathVariable(name = "userId") String userId, @RequestParam(name = "securityClassification") int securityClassification, String... roleEntities) {
-        return new ResultEntity<>(userService.updateSecurityClassificationById(userId, securityClassification, roleEntities));
+    public ResultEntity<UserEntity> updateSecurityClassificationById(@PathVariable(name = "userId") String userId, @RequestParam(name = "securityClassification") int securityClassification) {
+        return new ResultEntity<>(userService.updateSecurityClassificationById(userId, securityClassification));
     }
 
     // 根据Id查询用户信息
@@ -89,10 +90,17 @@ public class UserController {
         return new ResultEntity<>(userService.getUserById(userId));
     }
 
+    // 根据用户Id修改部门
+    @PreAuthorize(value = "hasRole('ROLE_AUDIT')")
+    @PatchMapping("/{userId}/updateUserForDepartment")
+    public ResultEntity<UserEntity> updateUserForDepartmentByAudit(@PathVariable(name = "userId") String userId, String departmentId) {
+        return new ResultEntity<>(userService.updateDepartmentById(userId, departmentId));
+    }
+
     // 分页查询全部用户
     @GetMapping
-    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
-    public ResultEntity<Page<UserEntity>> getUsers(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
-        return new ResultEntity<>(userService.getUsers(pageable));
+    @PreAuthorize(value = "hasAnyRole('ROLE_ADMIN','ROLE_AUDIT')")
+    public ResultEntity<Page<UserEntity>> getUsers(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        return new ResultEntity<>(userService.getUsers(username, pageable));
     }
 }
