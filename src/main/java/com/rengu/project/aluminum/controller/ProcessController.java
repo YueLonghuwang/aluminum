@@ -1,6 +1,7 @@
 package com.rengu.project.aluminum.controller;
 
 import com.rengu.project.aluminum.entity.ResultEntity;
+import com.rengu.project.aluminum.entity.TaskEntity;
 import com.rengu.project.aluminum.service.ProcessService;
 import org.flowable.task.api.Task;
 import org.flowable.engine.*;
@@ -30,30 +31,42 @@ public class ProcessController {
 
     // 启动流程
     @PostMapping
-    public ResultEntity startProcessInstance(String userId, Integer money) {
-        return new ResultEntity<>(processService.startProcess(userId, money));
+    public ResultEntity startProcessInstance(String userId, String departmentId, int resourceType, String resourceId) {
+        return new ResultEntity<>(processService.startProcess(userId, departmentId, resourceType, resourceId));
+    }
+
+    // 查看部门任务列表
+    @GetMapping(value="/departmentTasks/{departmentId}")
+    public ResultEntity getDepartmentTasks(@PathVariable(value = "departmentId") String departmentId) {
+        List<TaskEntity> tasks = processService.getDepartmentTasks(departmentId);
+        /*List<TaskRepresentation> dtos = new ArrayList<>();
+        for (Task task : tasks) {
+            dtos.add(new TaskRepresentation(task.getId(), task.getName()));
+        }*/
+        return new ResultEntity<>(tasks);
+    }
+
+    // 申领任务
+    @PostMapping(value = "/claimTask/{taskId}")
+    public ResultEntity claimTask(@PathVariable String taskId,  String userId) {
+        return new ResultEntity<>(processService.claimTask(taskId, userId));
     }
 
     // 查看任务列表
     @GetMapping(value="/tasks/{userId}")
     public ResultEntity getTasks(@PathVariable(value = "userId") String userId) {
-        List<Task> tasks = processService.getTasks(userId);
-        List<TaskRepresentation> dtos = new ArrayList<>();
+        List<TaskEntity> tasks = processService.getTasks(userId);
+        /*List<TaskRepresentation> dtos = new ArrayList<>();
         for (Task task : tasks) {
             dtos.add(new TaskRepresentation(task.getId(), task.getName()));
-        }
-        return new ResultEntity<>(dtos);
+        }*/
+        return new ResultEntity<>(tasks);
     }
 
+    // 完成任务
     @PostMapping(value = "/completeTask/{taskId}")
     public void completeTask(@PathVariable String taskId) {
         processService.completeTask(taskId);
-    }
-
-    // 查看部门任务列表
-    @GetMapping(value="/departmentTasks/{departmentId}")
-    public List<Task> getDepartmentTasks(@PathVariable(value = "departmentId") String departmentId) {
-        return processService.getDepartmentTasks(departmentId);
     }
 
     /**
@@ -61,21 +74,14 @@ public class ProcessController {
      * @param taskId 任务ID
      */
     @PostMapping(value = "/apply/{taskId}")
-    public ResultEntity apply(@PathVariable(value = "taskId") String taskId) {
-        return new ResultEntity<>(processService.apply(taskId));
+    public ResultEntity apply(@PathVariable(value = "taskId") String taskId, String ifApprove) {
+        return new ResultEntity<>(processService.apply(taskId, ifApprove));
     }
 
-    /**
-     * 拒绝
-     */
-    @PostMapping(value = "/reject/{taskId}")
-    public ResultEntity reject(@PathVariable(value = "taskId") String taskId) {
-        return new ResultEntity<>(processService.reject(taskId));
-    }
-
+    // 返回流程图
     @GetMapping(value = "/processDiagram/{processId}")
-    public void genProcessDiagram(HttpServletResponse httpServletResponse, @PathVariable(value = "processId") String processId) throws Exception {
-        processService.genProcessDiagram(httpServletResponse, processId);
+    public void getProcessDiagram(HttpServletResponse httpServletResponse, @PathVariable(value = "processId") String processId) throws Exception {
+        processService.getProcessDiagram(httpServletResponse, processId);
     }
 
     static class TaskRepresentation {

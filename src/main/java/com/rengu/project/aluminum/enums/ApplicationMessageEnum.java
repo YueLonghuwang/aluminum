@@ -75,7 +75,10 @@ public enum ApplicationMessageEnum {
     RESOURCE_FILE_EXISTS(803, "该资源文件已存在"),
     MESSAGE_ID_NOT_FOUND_ERROR(50015, "未发现该消息ID"),
     // 权限验证
-    ERROR_PERMISSION_DENIED(901, "权限不足");
+    ERROR_PERMISSION_DENIED(901, "权限不足"),
+    // 资源类型
+    RESOURCE_TYPE_NOT_FOUND(1001, "该资源类型不存在"),
+    PROCESSID_NOT_FOUND(1002, "流程不存在");
     private int code;
     private String message;
 

@@ -17,4 +17,7 @@ public interface AlgorithmAndServerRepository extends JpaRepository<AlgorithmAnd
     boolean existsByNameAndVersionAndStatusIn(String name, String version, int[] status);
 
     Page<ModelResourceEntity> findBySecurityClassificationLessThanEqualAndStatus(Pageable pageable, int securityClassification, int status);
+
+    AlgorithmAndServerEntity findByProcessId(String processId);
+    boolean existsByProcessId(String processId);
 }

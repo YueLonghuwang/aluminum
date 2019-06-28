@@ -46,6 +46,12 @@ public class ApplicationConfig {
     private String OAUTH_CLIENT_SCOPES;
     private String OAUTH_JWT_SIGNINGKEY;
 
+    // resource类型
+    public static final int MODEL_RESOURCE = 0;                          // 模型资源
+    public static final int STANDARD_RESOURCE = 1;                       // 标准规范
+    public static final int ALGORITHM_RESOURCE = 2;                      // 算法服务
+    public static final int TOOLS_RESOURCE = 3;                          // 工具软件
+
     // 通知的基本操作
     public static final int ARRANGE_NONE_OPERATE = 0;                        // 无操作
     public static final int ARRANGE_ROLE_OPERATE = 1;                       // 赋予新角色

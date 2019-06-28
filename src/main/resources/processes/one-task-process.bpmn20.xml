@@ -15,15 +15,31 @@
         <exclusiveGateway id="sid-842B81BD-AF55-4059-BA98-5828646B98D4"></exclusiveGateway>
         <sequenceFlow id="sid-774B74C9-DDCF-4BCA-9D5C-ECC5CF4C5132" sourceRef="sid-A3332346-8221-441E-B5A3-866387209589" targetRef="sid-842B81BD-AF55-4059-BA98-5828646B98D4"></sequenceFlow>
         <endEvent id="sid-74859F3B-DAEA-4CCF-B7DA-71692618AE8B"></endEvent>
-        <sequenceFlow id="sid-C95D32B4-DCF9-48A7-BDFD-A8EAEA0BCDC9" name="驳回" sourceRef="sid-AD71912F-C1EB-457F-8205-6B2D35CD8ADB" targetRef="sid-74859F3B-DAEA-4CCF-B7DA-71692618AE8B"></sequenceFlow>
+        <sequenceFlow id="sid-C95D32B4-DCF9-48A7-BDFD-A8EAEA0BCDC9" name="驳回" sourceRef="sid-AD71912F-C1EB-457F-8205-6B2D35CD8ADB" targetRef="sid-74859F3B-DAEA-4CCF-B7DA-71692618AE8B">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ifApprove=='驳回'}]]></conditionExpression>
+        </sequenceFlow>
         <sequenceFlow id="sid-E170F354-440E-48B3-9EDE-9DF0FCB022D4" sourceRef="sid-788E215D-406C-4495-AC88-C102863B4458" targetRef="sid-AD71912F-C1EB-457F-8205-6B2D35CD8ADB"></sequenceFlow>
-        <sequenceFlow id="sid-5F0BE5FC-3842-4683-8C7D-B2633202D023" name="通过" sourceRef="sid-AD71912F-C1EB-457F-8205-6B2D35CD8ADB" targetRef="sid-2F4EF8F7-1934-4B63-979D-F6A2B642363B"></sequenceFlow>
-        <sequenceFlow id="sid-1B552A40-D2E3-4D4F-A37F-D7F48DD6E5BC" name="通过" sourceRef="sid-FE35BA84-1D17-4209-8F5F-2416DE0BBCAC" targetRef="sid-0AD91C3D-25DF-43EF-BC1A-983F7403AACD"></sequenceFlow>
-        <sequenceFlow id="sid-B09F1D0A-BF2E-41FF-902B-733C18F9E10F" name="通过" sourceRef="sid-A7BB6DA4-5A1A-49C3-9A58-0889B733D5B8" targetRef="sid-A3332346-8221-441E-B5A3-866387209589"></sequenceFlow>
-        <sequenceFlow id="sid-D13AB05C-403D-4AA3-8756-C7B47707401E" name="通过" sourceRef="sid-842B81BD-AF55-4059-BA98-5828646B98D4" targetRef="sid-74859F3B-DAEA-4CCF-B7DA-71692618AE8B"></sequenceFlow>
-        <sequenceFlow id="sid-097015E4-7800-4AFF-9B83-75CAA1A3A64F" name="驳回" sourceRef="sid-FE35BA84-1D17-4209-8F5F-2416DE0BBCAC" targetRef="sid-74859F3B-DAEA-4CCF-B7DA-71692618AE8B"></sequenceFlow>
-        <sequenceFlow id="sid-0EFE3CD2-E31F-4A06-97D2-1F9980534AAB" name="驳回" sourceRef="sid-A7BB6DA4-5A1A-49C3-9A58-0889B733D5B8" targetRef="sid-74859F3B-DAEA-4CCF-B7DA-71692618AE8B"></sequenceFlow>
-        <sequenceFlow id="sid-9B70CFDE-53D0-4EE5-8036-F2EB73B62520" name="驳回" sourceRef="sid-842B81BD-AF55-4059-BA98-5828646B98D4" targetRef="sid-74859F3B-DAEA-4CCF-B7DA-71692618AE8B"></sequenceFlow>
+        <sequenceFlow id="sid-5F0BE5FC-3842-4683-8C7D-B2633202D023" name="通过" sourceRef="sid-AD71912F-C1EB-457F-8205-6B2D35CD8ADB" targetRef="sid-2F4EF8F7-1934-4B63-979D-F6A2B642363B">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ifApprove=='通过'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-1B552A40-D2E3-4D4F-A37F-D7F48DD6E5BC" name="通过" sourceRef="sid-FE35BA84-1D17-4209-8F5F-2416DE0BBCAC" targetRef="sid-0AD91C3D-25DF-43EF-BC1A-983F7403AACD">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ifApprove=='通过'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-B09F1D0A-BF2E-41FF-902B-733C18F9E10F" name="通过" sourceRef="sid-A7BB6DA4-5A1A-49C3-9A58-0889B733D5B8" targetRef="sid-A3332346-8221-441E-B5A3-866387209589">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ifApprove=='通过'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-D13AB05C-403D-4AA3-8756-C7B47707401E" name="通过" sourceRef="sid-842B81BD-AF55-4059-BA98-5828646B98D4" targetRef="sid-74859F3B-DAEA-4CCF-B7DA-71692618AE8B">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ifApprove=='通过'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-097015E4-7800-4AFF-9B83-75CAA1A3A64F" name="驳回" sourceRef="sid-FE35BA84-1D17-4209-8F5F-2416DE0BBCAC" targetRef="sid-74859F3B-DAEA-4CCF-B7DA-71692618AE8B">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ifApprove=='驳回'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-0EFE3CD2-E31F-4A06-97D2-1F9980534AAB" name="驳回" sourceRef="sid-A7BB6DA4-5A1A-49C3-9A58-0889B733D5B8" targetRef="sid-74859F3B-DAEA-4CCF-B7DA-71692618AE8B">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ifApprove=='驳回'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-9B70CFDE-53D0-4EE5-8036-F2EB73B62520" name="驳回" sourceRef="sid-842B81BD-AF55-4059-BA98-5828646B98D4" targetRef="sid-74859F3B-DAEA-4CCF-B7DA-71692618AE8B">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ifApprove=='驳回'}]]></conditionExpression>
+        </sequenceFlow>
     </process>
     <bpmndi:BPMNDiagram id="BPMNDiagram_audit">
         <bpmndi:BPMNPlane bpmnElement="audit" id="BPMNPlane_audit">
