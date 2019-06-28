@@ -1,7 +1,6 @@
 package com.rengu.project.aluminum.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,7 +31,7 @@ public class UserEntity implements UserDetails, Serializable {
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;
-    private int securityClassification = SecurityClassificationEnum.PUBLIC.getCode();
+    private int securityClassification;
     @ManyToOne
     private DepartmentEntity department;
     @ManyToMany(fetch = FetchType.EAGER)
@@ -42,7 +41,7 @@ public class UserEntity implements UserDetails, Serializable {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         for (RoleEntity roleEntity : roleEntities) {
-            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + roleEntity.getName()));
+            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + roleEntity.getName().toUpperCase()));
         }
         return grantedAuthorities;
     }

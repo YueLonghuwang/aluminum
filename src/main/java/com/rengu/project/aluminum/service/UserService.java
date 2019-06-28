@@ -7,7 +7,6 @@ import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import com.rengu.project.aluminum.exception.DepartmentException;
-import com.rengu.project.aluminum.exception.RoleException;
 import com.rengu.project.aluminum.exception.UserException;
 import com.rengu.project.aluminum.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -24,10 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * com.rengu.project.aluminum.service
@@ -64,26 +60,13 @@ public class UserService implements UserDetailsService {
 
     // 管理员新建用户
     @CachePut(value = "user_cache", key = "#userEntity.getId()")
-    public UserEntity saveUserByAdmin(UserEntity userEntity, String departmentName, String... roleEntitys) {
-        verificationInfo(userEntity, departmentName);
-        RoleEntity roleEntity = null;
-        for (String roleNames : roleEntitys) {
-            if (!roleService.hasRoleByName(roleNames)) {
-                throw new RoleException(ApplicationMessageEnum.ROLE_NAME_NOT_FOUND);
-            } else {
-                roleEntity = roleService.getRoleByName(roleNames);
-            }
-
-        }
-        userEntity.setDepartment(departmentService.getDepartmentByName(departmentName));
-        userEntity.setPassword(new BCryptPasswordEncoder().encode(userEntity.getPassword()));
-        userEntity.setRoleEntities(new HashSet<>(Arrays.asList(roleEntity)));
+    public UserEntity saveUserByAdmin(UserEntity userEntity) {
+        verifyUser(userEntity);
+        userEntity.setRoleEntities(new HashSet<>(Collections.singletonList(roleService.getRoleByName(applicationConfig.getDEFAULT_USER_ROLE_NAME()))));
         return userRepository.save(userEntity);
     }
 
-    // 保存用户
-    @CachePut(value = "user_cache", key = "#userEntity.getId()")
-    public UserEntity saveUser(UserEntity userEntity, RoleEntity... roleEntities) {
+    private void verifyUser(UserEntity userEntity) {
         if (StringUtils.isEmpty(userEntity.getUsername())) {
             throw new UserException(ApplicationMessageEnum.USER_USERNAME_NOT_FOUND);
         }
@@ -93,7 +76,14 @@ public class UserService implements UserDetailsService {
         if (StringUtils.isEmpty(userEntity.getPassword())) {
             throw new UserException(ApplicationMessageEnum.USER_PASSWORD_NOT_FOUND);
         }
+
         userEntity.setPassword(new BCryptPasswordEncoder().encode(userEntity.getPassword()));
+    }
+
+    // 保存用户
+    @CachePut(value = "user_cache", key = "#userEntity.getId()")
+    public UserEntity saveUser(UserEntity userEntity, RoleEntity... roleEntities) {
+        verifyUser(userEntity);
         userEntity.setRoleEntities(new HashSet<>(Arrays.asList(roleEntities)));
         return userRepository.save(userEntity);
     }
@@ -177,13 +167,17 @@ public class UserService implements UserDetailsService {
 
     // 分页查询全部用户(根据权限查询)
     public Page<UserEntity> getUsers(String username, Pageable pageable) {
-        UserEntity userEntity = getUserByUsername(username);
+/*        UserEntity userEntity = getUserByUsername(username);
         for (RoleEntity roleEntity : userEntity.getRoleEntities()) {
             if (roleEntity.getName().equals(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME())) {
                 return userRepository.findAllByUsernameNot(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME(), pageable);
             }
-        }
-        return userRepository.findAllByUsernameNotAndUsernameNot(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME(), applicationConfig.getDEFAULT_AUDIT_ROLE_NAME(), pageable);
+        }*/
+        RoleEntity roleEntity = roleService.getRoleByName(applicationConfig.getDEFAULT_USER_ROLE_NAME());
+        Set<RoleEntity> roleEntities = new HashSet<>();
+        roleEntities.add(roleEntity);
+        return userRepository.findByRoleEntities(roleEntities, pageable);
+//         userRepository.findAllByUsernameNotAndUsernameNot(applicationConfig.getDEFAULT_ADMIN_ROLE_NAME(), applicationConfig.getDEFAULT_AUDIT_ROLE_NAME(), pageable);
     }
 
     // 按部门查询用户
@@ -207,7 +201,7 @@ public class UserService implements UserDetailsService {
     }
 
     // 管理员修改用户权限
-    public UserEntity modifyRoleByAdmin(String userId, String departmentName, String... roleEntities) {
+    public UserEntity modifyRoleByAdmin(String userId, String departmentName) {
         UserEntity userEntity = getUserById(userId);
         if (StringUtils.isEmpty(userEntity.getUsername())) {
             throw new UserException(ApplicationMessageEnum.USER_USERNAME_NOT_FOUND);
@@ -221,7 +215,7 @@ public class UserService implements UserDetailsService {
         if (!departmentService.hasDepartmentByName(departmentName)) {
             throw new DepartmentException(ApplicationMessageEnum.DEPARTMENT_NAME_NOT_FOUND);
         }
-        RoleEntity roleEntity = null;
+       /* RoleEntity roleEntity = null;
         for (String roleNames : roleEntities) {
             if (!roleService.hasRoleByName(roleNames)) {
                 throw new RoleException(ApplicationMessageEnum.ROLE_NAME_NOT_FOUND);
@@ -233,9 +227,9 @@ public class UserService implements UserDetailsService {
                 }
 
             }
-        }
+        }*/
         userEntity.setDepartment(departmentService.getDepartmentByName(departmentName));
-        userEntity.setRoleEntities(new HashSet<>(Arrays.asList(roleEntity)));
+//        userEntity.setRoleEntities(new HashSet<>(Arrays.asList(roleEntity)));
         return userRepository.save(userEntity);
     }
 
@@ -271,4 +265,13 @@ public class UserService implements UserDetailsService {
         return userRepository.save(userEntity);
     }
 
+
+    public Map<String, String> removeUserByDepartment(String userId, String departmentId) {
+        Map<String, String> map = new HashMap<>();
+        map.put("departmentName", departmentService.getDepartmentByName(departmentId).getName());
+        UserEntity userEntity = getUserById(userId);
+        userEntity.setDepartment(null);
+        map.put("username", userEntity.getUsername());
+        return map;
+    }
 }

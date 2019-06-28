@@ -153,24 +153,24 @@ public class FileService {
     }
 
 
-//    private FileEntity mergeChunkEntitys(java.io.File file, ChunkEntity chunkEntity) throws IOException {
-//        file.delete();
-//        file.getParentFile().mkdirs();
-//        file.createNewFile();
-//        for (int i = 1; i <= chunkEntity.getTotalChunkEntitys(); i++) {
-//            java.io.File chunk = new java.io.File(applicationConfig.getCHUNKS_SAVE_PATH() + java.io.File.separator + chunkEntity.getIdentifier() + java.io.File.separator + i + ".tmp");
-//            if (chunk.exists()) {
-//                FileUtils.writeByteArrayToFile(file, FileUtils.readFileToByteArray(chunk), true);
-//            } else {
-//                throw new FileException(ApplicationMessageEnum.FILE_CHUNK_NOT_FOUND_ERROR);
-//            }
-//        }
-//        @Cleanup FileInputStream fileInputStream = new FileInputStream(file);
-//        if (!chunkEntity.getIdentifier().equals(DigestUtils.md5Hex(fileInputStream))) {
-//            throw new RuntimeException("文件合并失败，请检查：" + file.getAbsolutePath() + "是否正确。");
-//        }
-//        return saveFile(file);
-//    }
+/*    private FileEntity mergeChunkEntitys(java.io.File file, ChunkEntity chunkEntity) throws IOException {
+        file.delete();
+        file.getParentFile().mkdirs();
+        file.createNewFile();
+        for (int i = 1; i <= chunkEntity.getTotalChunkEntitys(); i++) {
+            java.io.File chunk = new java.io.File(applicationConfig.getCHUNKS_SAVE_PATH() + java.io.File.separator + chunkEntity.getIdentifier() + java.io.File.separator + i + ".tmp");
+            if (chunk.exists()) {
+                FileUtils.writeByteArrayToFile(file, FileUtils.readFileToByteArray(chunk), true);
+            } else {
+                throw new FileException(ApplicationMessageEnum.FILE_CHUNK_NOT_FOUND_ERROR);
+            }
+        }
+        @Cleanup FileInputStream fileInputStream = new FileInputStream(file);
+        if (!chunkEntity.getIdentifier().equals(DigestUtils.md5Hex(fileInputStream))) {
+            throw new RuntimeException("文件合并失败，请检查：" + file.getAbsolutePath() + "是否正确。");
+        }
+        return saveFile(file);
+    }*/
 
     // 合并文件块
     public FileEntity mergeChunkEntitys(ChunkEntity chunk) throws IOException, ExecutionException, InterruptedException {

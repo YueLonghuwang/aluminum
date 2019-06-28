@@ -29,7 +29,6 @@ import java.util.Optional;
 public class DepartmentService {
 
     private final DepartmentRepository departmentRepository;
-
     public DepartmentService(DepartmentRepository departmentRepository) {
         this.departmentRepository = departmentRepository;
     }
@@ -116,4 +115,5 @@ public class DepartmentService {
         }
         return departmentRepository.existsById(id);
     }
+
 }
