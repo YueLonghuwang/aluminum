@@ -39,13 +39,15 @@ public class MessageAOP {
     private final UserService userService;
     private final UserRepository userRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ApplicationConfig applicationConfig;
 
-    public MessageAOP(MessageRepository messageRepository, MessageService messageService, UserService userService, UserRepository userRepository, SimpMessagingTemplate simpMessagingTemplate) {
+    public MessageAOP(MessageRepository messageRepository, MessageService messageService, UserService userService, UserRepository userRepository, SimpMessagingTemplate simpMessagingTemplate, ApplicationConfig applicationConfig) {
         this.messageRepository = messageRepository;
         this.messageService = messageService;
         this.userService = userService;
         this.userRepository = userRepository;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.applicationConfig = applicationConfig;
     }
 
     @Pointcut(value = "execution(public * com.rengu.project.aluminum.controller..*(..))")
@@ -72,7 +74,6 @@ public class MessageAOP {
                     return;
                 }
                 UserEntity userEntity = (UserEntity) resultEntity.getData();
-                mainOperatorName = userService.getUserByUsername("admin").getUsername();                         // 操作人
                 mainBody = ApplicationConfig.MAINBODY_USERS;
                 arrangedPersonName = userEntity.getUsername();
                 switch (joinPoint.getSignature().getName()) {
@@ -93,25 +94,30 @@ public class MessageAOP {
                                 break;
                             }
                         }
+                        mainOperatorName = applicationConfig.getDEFAULT_SECURITY_ROLE_NAME(); // 操作人
                         description = "安全员已将 " + userEntity.getUsername() + "的密级更新为: " + securityClassification;
                         break;
                     }
                     case "updateUserByAdmin": {
                         messageOperate = ApplicationConfig.MODIFY_OPERATE;
+                        mainOperatorName = applicationConfig.getDEFAULT_ADMIN_ROLE_NAME();
                         description = "管理员已将 " + userEntity.getUsername() + " 的部门修改为: " + userEntity.getDepartment().getName();
                         break;
                     }
                     case "saveUserByAdmin": {
+                        mainOperatorName = applicationConfig.getDEFAULT_ADMIN_ROLE_NAME();
                         messageOperate = ApplicationConfig.ADD_OPERATE;
                         description = "管理员创建了 " + userEntity.getUsername() + " 用户";
                         break;
                     }
                     case "updatePwdByAdmin": {
+                        mainOperatorName = applicationConfig.getDEFAULT_ADMIN_ROLE_NAME();
                         messageOperate = ApplicationConfig.MODIFY_OPERATE;
                         description = "管理员修改了 " + userEntity.getUsername() + " 的密码";
                         break;
                     }
                     case "deleteUserById": {
+                        mainOperatorName = applicationConfig.getDEFAULT_ADMIN_ROLE_NAME();
                         messageOperate = ApplicationConfig.DELETE_OPERATE;
                         description = "管理员删除了" + userEntity.getUsername() + " 用户";
                         break;
@@ -127,18 +133,21 @@ public class MessageAOP {
                 mainBody = ApplicationConfig.MAINBODY_DEPARTMENT;
                 switch (joinPoint.getSignature().getName()) {
                     case "saveDepartment": {
+                        mainOperatorName = applicationConfig.getDEFAULT_ADMIN_ROLE_NAME();
                         DepartmentEntity departmentEntity = (DepartmentEntity) resultEntity.getData();
                         messageOperate = ApplicationConfig.ADD_OPERATE;
                         description = "管理员创建了 " + departmentEntity.getName() + " 部门";
                         break;
                     }
                     case "deleteDepartmentById": {
+                        mainOperatorName = applicationConfig.getDEFAULT_ADMIN_ROLE_NAME();
                         DepartmentEntity departmentEntity = (DepartmentEntity) resultEntity.getData();
                         messageOperate = ApplicationConfig.DELETE_OPERATE;
                         description = "管理员删除了 " + departmentEntity.getName() + " 部门";
                         break;
                     }
                     case "updateDepartmentById": {
+                        mainOperatorName = applicationConfig.getDEFAULT_ADMIN_ROLE_NAME();
                         DepartmentEntity departmentEntity = (DepartmentEntity) resultEntity.getData();
                         messageOperate = ApplicationConfig.MODIFY_OPERATE;
                         description = "管理员修改了 " + departmentEntity.getName() + " 部门属性";
@@ -153,17 +162,20 @@ public class MessageAOP {
                             stringBuilder.append(userEntity.getUsername()).append(" ");
                             departmentName = userEntity.getDepartment().getName();
                         }
+                        mainOperatorName = applicationConfig.getDEFAULT_ADMIN_ROLE_NAME();
                         description = "管理员添加了用户 " + stringBuilder + " 到" + departmentName + " 部门";
                         break;
                     }
                     case "departmentRemoveUsersById": {
                         Map map = (Map) resultEntity.getData();
+                        mainOperatorName = applicationConfig.getDEFAULT_ADMIN_ROLE_NAME();
                         description = "管理员将用户 " + map.get("username") + " 从" + map.get("departmentName") + " 部门移除";
                         break;
                     }
                     case "updateUserForDepartmentByAudit": {
                         UserEntity userEntity = (UserEntity) resultEntity.getData();
                         messageOperate = ApplicationConfig.MODIFY_OPERATE;
+                        mainOperatorName = applicationConfig.getDEFAULT_ADMIN_ROLE_NAME();
                         description = "管理员修改了用户 " + userEntity.getUsername() + " 到" + userEntity.getDepartment().getName() + " 部门";
                         break;
                     }
@@ -176,6 +188,7 @@ public class MessageAOP {
                     return;
                 }
                 ModelResourceEntity modelResourceEntity = (ModelResourceEntity) resultEntity.getData();
+                mainOperatorName = modelResourceEntity.getCreateUser().getUsername();
                 mainBody = ApplicationConfig.MAINBODY_MODEL;
                 switch (joinPoint.getSignature().getName()) {
                     case "saveResource": {
@@ -208,6 +221,7 @@ public class MessageAOP {
                 }
                 mainBody = ApplicationConfig.MAINBODY_STANDARD;
                 StandardEntity standardEntity = (StandardEntity) resultEntity.getData();
+                mainOperatorName = standardEntity.getCreateUser().getUsername();
                 switch (joinPoint.getSignature().getName()) {
                     case "saveResource": {
                         messageOperate = ApplicationConfig.ADD_OPERATE;
@@ -240,6 +254,7 @@ public class MessageAOP {
                 }
                 mainBody = ApplicationConfig.MAINBODY_ALGORITHM_SERVER;
                 AlgorithmAndServerEntity algorithmAndServerEntity = (AlgorithmAndServerEntity) resultEntity.getData();
+                mainOperatorName = algorithmAndServerEntity.getCreateUser().getUsername();
                 switch (joinPoint.getSignature().getName()) {
                     case "saveResource": {
                         messageOperate = ApplicationConfig.ADD_OPERATE;
@@ -272,6 +287,7 @@ public class MessageAOP {
                 }
                 mainBody = ApplicationConfig.MAINBODY_TOOLS_SOFTWARE;
                 ToolsAndSoftwareEntity toolsAndSoftwareEntity = (ToolsAndSoftwareEntity) resultEntity.getData();
+                mainOperatorName = toolsAndSoftwareEntity.getCreateUser().getUsername();
                 switch (joinPoint.getSignature().getName()) {
                     case "saveResource": {
                         messageOperate = ApplicationConfig.ADD_OPERATE;
@@ -307,8 +323,7 @@ public class MessageAOP {
             }
 
             List<UserEntity> userEntityList = userRepository.findAll();
-            for (
-                    UserEntity userEntity : userEntityList) {
+            for (UserEntity userEntity : userEntityList) {
                 Long count = messageRepository.countByArrangedPersonNameAndIfRead(userEntity.getUsername(), false);
                 simpMessagingTemplate.convertAndSend("/personalInfo/" + userEntity.getUsername(), new ResultEntity<>(count));
             }

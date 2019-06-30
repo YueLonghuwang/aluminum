@@ -274,4 +274,16 @@ public class UserService implements UserDetailsService {
         map.put("username", userEntity.getUsername());
         return map;
     }
+
+    public List<UserEntity> updateSecurityClassificationByIds(String[] userIds, int securityClassification) {
+        SecurityClassificationEnum securityClassificationEnum = SecurityClassificationEnum.getEnum(securityClassification);
+        List<UserEntity> userEntityList = new ArrayList<>();
+        for(String userId:userIds){
+            UserEntity userEntity = getUserById(userId);
+            userEntity.setSecurityClassification(securityClassificationEnum.getCode());
+            userRepository.save(userEntity);
+            userEntityList.add(userEntity);
+        }
+        return userEntityList;
+    }
 }

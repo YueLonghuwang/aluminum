@@ -8,9 +8,10 @@ package com.rengu.project.aluminum.enums;
  */
 public enum ResourceStatusEnum {
 
-    PASSED(0, "入库"),
+    STATELESS(0,"无状态"),
     REVIEWING(1, "审核中"),
-    REFUSED(2, "驳回");
+    PASSED(2, "入库"),
+    REFUSED(3, "驳回");
 
     private int code;
     private String name;

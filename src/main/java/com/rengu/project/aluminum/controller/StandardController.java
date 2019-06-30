@@ -123,16 +123,12 @@ public class StandardController {
     public ResultEntity<List<Object>> getAllFiles(@PathVariable(value = "resourceId") String resourceId) {
         return new ResultEntity<>(standardService.getAllFilesById(resourceId));
     }
-
-
     @GetMapping
     public ResultEntity<Page<StandardEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(standardService.getResources(pageable));
     }
 
-    /**
-     /* * 得到fileid 然后创建预览临时文件夹，然后调用预览的实体类，然后
-     */
+
 
     /**
      * 获取重定向路径

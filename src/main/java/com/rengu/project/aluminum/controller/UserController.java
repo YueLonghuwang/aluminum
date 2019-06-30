@@ -84,6 +84,13 @@ public class UserController {
         return new ResultEntity<>(userService.updateSecurityClassificationById(userId, securityClassification));
     }
 
+    // 根据id修改多用户密级
+    @PreAuthorize(value = "hasAnyRole('ROLE_SECURITY')")
+    @PatchMapping(value = "/security-classification")
+    public ResultEntity updateSecurityClassificationByIds(@RequestBody String[] userIds, @RequestParam(name = "securityClassification") int securityClassification) {
+        return new ResultEntity<>(userService.updateSecurityClassificationByIds(userIds, securityClassification));
+    }
+
     // 根据Id查询用户信息
     @GetMapping(value = "/{userId}")
     public ResultEntity<UserEntity> getUserById(@PathVariable(value = "userId") String userId) {
