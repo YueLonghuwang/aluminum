@@ -112,23 +112,11 @@ public class ModelResourceController {
         return new ResultEntity<>(modelResourceService.getResources(pageable));
     }
 
-    private void printFile(FileInputStream is, OutputStream os) throws IOException {
-        try {
-            byte[] bytes = new byte[1024];
-            int tmp = 0;
-            while ((tmp = is.read(bytes)) != -1) {
-                os.write(bytes, 0, tmp);
-                os.flush();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (os != null) {
-                os.close();
-            }
-            if (is != null) {
-                is.close();
-            }
-        }
+    // 入库
+    @PostMapping("/putInStorage")
+    public ResultEntity<ModelResourceEntity> putInStorage(ModelResourceEntity modelResourceEntity) {
+        return new ResultEntity<>(modelResourceService.putInStorage(modelResourceEntity));
     }
+    // 出库
+
 }

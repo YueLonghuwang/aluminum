@@ -142,6 +142,7 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
     public File downloadResourceById(String resourceId, UserEntity userEntity) throws IOException {
         ModelResourceEntity modelResourceEntity = getResourceById(resourceId);
         super.securityCheck(modelResourceEntity, userEntity);
+//        super.statusCheck(modelResourceEntity);
         return resourceFileService.downloadResourceFileByResourceId(modelResourceEntity.getId());
     }
 
@@ -156,4 +157,11 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
     public ModelResourceEntity getResourceByNameAndVersionAndStatus(String name, String version, int... status) {
         return modelResourceRepository.findByNameAndVersionAndStatusIn(name, version, status).get();
     }
+
+    // 入库
+    public ModelResourceEntity putInStorage(ModelResourceEntity modelResourceEntity) {
+        super.putInStorage(modelResourceEntity);
+        return modelResourceRepository.save(modelResourceEntity);
+    }
+
 }
