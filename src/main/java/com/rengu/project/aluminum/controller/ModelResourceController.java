@@ -7,6 +7,7 @@ import com.rengu.project.aluminum.repository.ModelResourceRepository;
 import com.rengu.project.aluminum.service.ModelResourceService;
 import com.rengu.project.aluminum.service.UserService;
 import com.rengu.project.aluminum.specification.Filter;
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 
@@ -84,11 +86,16 @@ public class ModelResourceController {
         UserEntity userEntity = userService.getUserById(userId);
         File compressFile = modelResourceService.downloadResourceById(modelResourceId, userEntity);
         String mimeType = URLConnection.guessContentTypeFromName(compressFile.getName()) == null ? "application/octet-stream" : URLConnection.guessContentTypeFromName(compressFile.getName());
+        // 文件流输出
         httpServletResponse.setContentType(mimeType);
         httpServletResponse.setHeader("Content-Disposition", "attachment;filename=" + new String(compressFile.getName().getBytes(StandardCharsets.UTF_8), "ISO8859-1"));
         httpServletResponse.setContentLengthLong(compressFile.length());
+
         // 文件流输出
-        IOUtils.copy(new FileInputStream(compressFile), httpServletResponse.getOutputStream());
+        @Cleanup FileInputStream fileInputStream = new FileInputStream(compressFile);
+        @Cleanup OutputStream outputStream = httpServletResponse.getOutputStream();
+//        printFile(fileInputStream,outputStream);
+        IOUtils.copy(fileInputStream, outputStream);
         httpServletResponse.flushBuffer();
     }
 
@@ -104,4 +111,12 @@ public class ModelResourceController {
     public ResultEntity<Page<ModelResourceEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(modelResourceService.getResources(pageable));
     }
+
+    // 入库
+    @PostMapping("/putInStorage")
+    public ResultEntity<ModelResourceEntity> putInStorage(ModelResourceEntity modelResourceEntity) {
+        return new ResultEntity<>(modelResourceService.putInStorage(modelResourceEntity));
+    }
+    // 出库
+
 }

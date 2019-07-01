@@ -5,8 +5,10 @@ import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.exception.DepartmentException;
+import com.rengu.project.aluminum.repository.UserRepository;
 import com.rengu.project.aluminum.service.DepartmentService;
 import com.rengu.project.aluminum.service.UserService;
+import com.rengu.project.aluminum.specification.Filter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +17,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Set;
+
+import static com.rengu.project.aluminum.specification.SpecificationBuilder.selectFrom;
 
 /**
  * com.rengu.project.aluminum.controller
@@ -26,16 +31,31 @@ import java.util.Set;
 
 @Slf4j
 @RestController
-@PreAuthorize(value = "hasAnyRole('ROLE_ADMIN','ROLE_AUDIT')")
+@PreAuthorize(value = "hasAnyRole('ROLE_ADMIN')")
 @RequestMapping(path = "/departments")
 public class DepartmentController {
 
     private final DepartmentService departmentService;
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public DepartmentController(DepartmentService departmentService, UserService userService) {
+    public DepartmentController(DepartmentService departmentService, UserService userService, UserRepository userRepository) {
         this.departmentService = departmentService;
         this.userService = userService;
+        this.userRepository = userRepository;
+    }
+
+
+    /*  // 根据关键字查询
+      @PostMapping("/KeyWord")
+      public ResultEntity findByKeyWord(@RequestBody Filter filter) {
+          return new ResultEntity(selectFrom(modelResourceRepository).where(filter).findAll());
+      }
+  */
+    // 根据部门名字和用户名模糊查询用户信息
+    @PostMapping("/keyWord")
+    public ResultEntity getUserByDepartmentAndUserName(@RequestBody Filter filter) {
+        return new ResultEntity(selectFrom(userRepository).where(filter).findAll());
     }
 
     // 保存部门
@@ -67,8 +87,8 @@ public class DepartmentController {
 
     // 根据id删除成员
     @PatchMapping(value = "/{departmentId}/remove/users")
-    public ResultEntity<Set<UserEntity>> departmentRemoveUsersById(@PathVariable(name = "departmentId") String departmentId, @RequestParam(value = "userIds") String[] userIds) {
-        return new ResultEntity<>(userService.updateDepartmentByIds(userIds, null));
+    public ResultEntity<Map> departmentRemoveUsersById(@PathVariable(name = "departmentId") String departmentId, @RequestParam(value = "userId") String userId) {
+        return new ResultEntity<>(userService.removeUserByDepartment(userId, departmentId));
     }
 
     //  按部门ID查询用户
@@ -87,6 +107,13 @@ public class DepartmentController {
     @GetMapping
     public ResultEntity<Page<DepartmentEntity>> getDepartments(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(departmentService.getDepartments(pageable));
+    }
+
+    // 根据用户Id修改该用户的所属部门
+    @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
+    @PatchMapping("/{userId}/updateUserForDepartment")
+    public ResultEntity<UserEntity> updateUserForDepartmentByAudit(@PathVariable(name = "userId") String userId, String departmentId) {
+        return new ResultEntity<>(userService.updateDepartmentById(userId, departmentId));
     }
 
 }

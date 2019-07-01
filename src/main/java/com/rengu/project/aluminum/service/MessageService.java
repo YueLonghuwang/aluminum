@@ -7,6 +7,8 @@ import com.rengu.project.aluminum.exception.ResourceException;
 import com.rengu.project.aluminum.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -84,5 +86,10 @@ public class MessageService {
             throw new ResourceException(ApplicationMessageEnum.MESSAGE_ID_NOT_FOUND_ERROR);
         }
         return messageRepository.findById(messageId).get();
+    }
+
+    // 显示所有通知
+    public Page<MessageEntity> getAllMessage(Pageable pageable) {
+        return messageRepository.findAll(pageable);
     }
 }

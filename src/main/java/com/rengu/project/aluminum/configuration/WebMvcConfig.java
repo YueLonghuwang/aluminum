@@ -11,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * Author: XYmar
  * Date: 2019/2/18 13:06
  */
+
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
@@ -25,5 +26,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
-
 }

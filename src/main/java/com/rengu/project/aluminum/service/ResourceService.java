@@ -6,6 +6,7 @@ import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.enums.ResourceStatusEnum;
 import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import com.rengu.project.aluminum.exception.ResourceException;
+import com.rengu.project.aluminum.exception.ResourceFileException;
 import com.rengu.project.aluminum.exception.SecurityClassificationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -88,5 +89,22 @@ public abstract class ResourceService<T> {
         }
     }
 
+    // 库的状态检查
+    void statusCheck(ResourceEntity resourceEntity) {
+        if (resourceEntity.getStatus() != ResourceStatusEnum.PASSED.getCode()) {
+            throw new ResourceFileException(ApplicationMessageEnum.RESOURCE_FILE_IS_NOT_PASSED);
+        }
+    }
+
+    // 入库
+    void putInStorage(ResourceEntity resourceEntity) {
+        if (resourceEntity.getStatus() == ResourceStatusEnum.PASSED.getCode()) {
+            throw new ResourceFileException(ApplicationMessageEnum.RESOURCE_FILE_IS_PASSED);
+        } else if (resourceEntity.getStatus() == ResourceStatusEnum.REFUSED.getCode()) {
+            throw new ResourceFileException(ApplicationMessageEnum.RESOURCE_FILE_IS_REJECT);
+        } else if (resourceEntity.getStatus() == ResourceStatusEnum.REVIEWING.getCode()) {
+            resourceEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
+        }
+    }
 
 }

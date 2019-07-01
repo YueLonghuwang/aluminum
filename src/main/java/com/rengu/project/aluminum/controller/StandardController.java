@@ -5,7 +5,6 @@ import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.StandardEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.repository.StandardRepository;
-import com.rengu.project.aluminum.service.ResourceFileService;
 import com.rengu.project.aluminum.service.StandardService;
 import com.rengu.project.aluminum.service.UserService;
 import com.rengu.project.aluminum.specification.Filter;
@@ -49,14 +48,12 @@ public class StandardController {
     private final StandardService standardService;
     private final UserService userService;
     private final StandardRepository standardRepository;
-    private final ResourceFileService resourceFileService;
     private final PreviewFileInit previewFileInit;
 
-    public StandardController(StandardService standardService, UserService userService, StandardRepository standardRepository, ResourceFileService resourceFileService, PreviewFileInit previewFileInit) {
+    public StandardController(StandardService standardService, UserService userService, StandardRepository standardRepository, PreviewFileInit previewFileInit) {
         this.standardService = standardService;
         this.userService = userService;
         this.standardRepository = standardRepository;
-        this.resourceFileService = resourceFileService;
         this.previewFileInit = previewFileInit;
     }
 
@@ -126,16 +123,12 @@ public class StandardController {
     public ResultEntity<List<Object>> getAllFiles(@PathVariable(value = "resourceId") String resourceId) {
         return new ResultEntity<>(standardService.getAllFilesById(resourceId));
     }
-
-
     @GetMapping
     public ResultEntity<Page<StandardEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(standardService.getResources(pageable));
     }
 
-    /**
-     /* * 得到fileid 然后创建预览临时文件夹，然后调用预览的实体类，然后
-     */
+
 
     /**
      * 获取重定向路径

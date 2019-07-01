@@ -1,6 +1,8 @@
 package com.rengu.project.aluminum.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.rengu.project.aluminum.ApplicationConfig;
+import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -42,7 +44,7 @@ public class UserEntity implements UserDetails, Serializable {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         for (RoleEntity roleEntity : roleEntities) {
-            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + roleEntity.getName()));
+            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + roleEntity.getName().toUpperCase()));
         }
         return grantedAuthorities;
     }

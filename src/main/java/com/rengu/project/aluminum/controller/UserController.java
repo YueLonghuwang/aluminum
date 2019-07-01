@@ -39,8 +39,8 @@ public class UserController {
     // 管理员创建用户
     @PostMapping("/saveByAdmin")
     @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
-    public ResultEntity<UserEntity> saveUserByAdmin(UserEntity userEntity, String departmentName, String... roleEntities) {
-        return new ResultEntity<>(userService.saveUserByAdmin(userEntity, departmentName, roleEntities));
+    public ResultEntity<UserEntity> saveUserByAdmin(UserEntity userEntity) {
+        return new ResultEntity<>(userService.saveUserByAdmin(userEntity));
     }
 
     // 管理员修改密码
@@ -50,11 +50,11 @@ public class UserController {
         return new ResultEntity<>(userService.updatePasswordById(userId, password));
     }
 
-    // 管理员修改更改权限以及部门
+    // 管理员修改部门
     @PostMapping("/{userId}/updateUserByAdmin")
     @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
-    public ResultEntity<UserEntity> updateUserByAdmin(@PathVariable(name = "userId") String userId, String departmentName, String... roleEntities) {
-        return new ResultEntity<>(userService.modifyRoleByAdmin(userId, departmentName, roleEntities));
+    public ResultEntity<UserEntity> updateUserByAdmin(@PathVariable(name = "userId") String userId, String departmentName) {
+        return new ResultEntity<>(userService.modifyRoleByAdmin(userId, departmentName));
     }
 
     // 保存用户
@@ -65,7 +65,7 @@ public class UserController {
 
     // 根据Id删除用户
     @DeleteMapping(value = "/{userId}")
-    @PreAuthorize(value = "hasAnyRole('ROLE_ADMIN','ROLE_SECURITY')")
+    @PreAuthorize(value = "hasAnyRole('ROLE_ADMIN')")
     public ResultEntity<UserEntity> deleteUserById(@PathVariable(name = "userId") String userId) {
         return new ResultEntity<>(userService.deleteUserById(userId));
     }
@@ -78,23 +78,23 @@ public class UserController {
     }
 
     // 根据id修改用户密级
-    @PreAuthorize(value = "hasAnyRole('ROLE_ADMIN','ROLE_SECURITY')")
+    @PreAuthorize(value = "hasAnyRole('ROLE_SECURITY')")
     @PatchMapping(value = "/{userId}/security-classification")
     public ResultEntity<UserEntity> updateSecurityClassificationById(@PathVariable(name = "userId") String userId, @RequestParam(name = "securityClassification") int securityClassification) {
         return new ResultEntity<>(userService.updateSecurityClassificationById(userId, securityClassification));
+    }
+
+    // 根据id修改多用户密级
+    @PreAuthorize(value = "hasAnyRole('ROLE_SECURITY')")
+    @PatchMapping(value = "/security-classification")
+    public ResultEntity updateSecurityClassificationByIds(@RequestBody String[] userIds, @RequestParam(name = "securityClassification") int securityClassification) {
+        return new ResultEntity<>(userService.updateSecurityClassificationByIds(userIds, securityClassification));
     }
 
     // 根据Id查询用户信息
     @GetMapping(value = "/{userId}")
     public ResultEntity<UserEntity> getUserById(@PathVariable(value = "userId") String userId) {
         return new ResultEntity<>(userService.getUserById(userId));
-    }
-
-    // 根据用户Id修改部门
-    @PreAuthorize(value = "hasRole('ROLE_AUDIT')")
-    @PatchMapping("/{userId}/updateUserForDepartment")
-    public ResultEntity<UserEntity> updateUserForDepartmentByAudit(@PathVariable(name = "userId") String userId, String departmentId) {
-        return new ResultEntity<>(userService.updateDepartmentById(userId, departmentId));
     }
 
     // 分页查询全部用户
