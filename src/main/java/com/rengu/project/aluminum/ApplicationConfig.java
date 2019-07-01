@@ -34,11 +34,23 @@ public class ApplicationConfig {
     private String DEFAULT_AUDIT_USER_USERNAME;
     private String DEFAULT_AUDIT_USER_PASSWORD;
 
+    // 默认部门
+    private String DEFAULT_PROOF_NAME;
+    private String DEFAULT_AUDIT_NAME;
+    private String DEFAULT_COUNT_NAME;
+    private String DEFAULT_APPROVE_NAME;
+
     // OAuth2配置
     private String OAUTH_CLIENT_ID;
     private String OAUTH_CLIENT_SECRET;
     private String OAUTH_CLIENT_SCOPES;
     private String OAUTH_JWT_SIGNINGKEY;
+
+    // resource类型
+    public static final int MODEL_RESOURCE = 0;                          // 模型资源
+    public static final int STANDARD_RESOURCE = 1;                       // 标准规范
+    public static final int ALGORITHM_RESOURCE = 2;                      // 算法服务
+    public static final int TOOLS_RESOURCE = 3;                          // 工具软件
 
     // 通知的基本操作
     public static final int ARRANGE_NONE_OPERATE = 0;                        // 无操作
@@ -60,5 +72,4 @@ public class ApplicationConfig {
     // 本地文件库配置
     private String CHUNKS_SAVE_PATH = FormatUtils.formatPath(FileUtils.getTempDirectoryPath() + File.separator + "ALUMINUM" + File.separator + "CHUNKS");
     private String FILES_SAVE_PATH = FormatUtils.formatPath(FileUtils.getUserDirectoryPath() + File.separator + "ALUMINUM" + File.separator + "FILES");
-
 }

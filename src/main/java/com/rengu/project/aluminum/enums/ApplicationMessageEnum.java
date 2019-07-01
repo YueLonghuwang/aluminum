@@ -78,7 +78,10 @@ public enum ApplicationMessageEnum {
     RESOURCE_FILE_IS_PASSED(805, "该资源文件已经入库"),
     RESOURCE_FILE_IS_REJECT(806, "该资源文件已驳回，请重新审核再入库"),
     // 权限验证
-    ERROR_PERMISSION_DENIED(901, "权限不足");
+    ERROR_PERMISSION_DENIED(901, "权限不足"),
+    // 资源类型
+    RESOURCE_TYPE_NOT_FOUND(1001, "该资源类型不存在"),
+    PROCESSID_NOT_FOUND(1002, "流程不存在");
     private int code;
     private String message;
 

@@ -20,4 +20,8 @@ public interface StandardRepository extends JpaRepository<StandardEntity, String
     boolean existsByNameAndVersionAndStatusIn(String name, String version, int[] status);
 
     Page<StandardEntity> findBySecurityClassificationLessThanEqualAndStatus(Pageable pageable, int securityClassification, int status);
+
+    StandardEntity findByProcessId(String processId);
+    boolean existsByProcessId(String processId);
+
 }

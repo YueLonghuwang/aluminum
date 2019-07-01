@@ -19,4 +19,6 @@ public interface ModelResourceRepository extends JpaRepository<ModelResourceEnti
 
     Optional<ModelResourceEntity> findByNameAndVersionAndStatusIn(String name, String version, int[] status);
     Page<ModelResourceEntity> findBySecurityClassificationLessThanEqualAndStatus(Pageable pageable, int securityClassification, int status);
+    ModelResourceEntity findByProcessId(String processId);
+    boolean existsByProcessId(String processId);
 }

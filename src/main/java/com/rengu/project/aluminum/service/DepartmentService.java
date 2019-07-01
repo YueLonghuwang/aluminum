@@ -101,7 +101,7 @@ public class DepartmentService {
     }
 
     // 根据名称判断部门是否存在
-    boolean hasDepartmentByName(String name) {
+    public boolean hasDepartmentByName(String name) {
         if (StringUtils.isEmpty(name)) {
             return false;
         }

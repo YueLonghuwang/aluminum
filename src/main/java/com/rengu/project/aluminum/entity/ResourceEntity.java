@@ -31,6 +31,7 @@ public abstract class ResourceEntity implements Serializable {
     private String tag;
     private int securityClassification = SecurityClassificationEnum.PUBLIC.getCode();
     private int status;
+    private String processId;
     @ManyToOne
     private UserEntity createUser;
     @ManyToOne

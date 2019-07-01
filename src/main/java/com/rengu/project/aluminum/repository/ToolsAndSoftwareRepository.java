@@ -19,4 +19,7 @@ public interface ToolsAndSoftwareRepository extends JpaRepository<ToolsAndSoftwa
 
     Page<ModelResourceEntity> findBySecurityClassificationLessThanEqualAndStatus(Pageable pageable, int securityClassification, int status);
 
+    ToolsAndSoftwareEntity findByProcessId(String processId);
+    boolean existsByProcessId(String processId);
+
 }
