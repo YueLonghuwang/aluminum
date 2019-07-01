@@ -9,7 +9,7 @@ package com.rengu.project.aluminum.enums;
 public enum ResourceStatusEnum {
 
     REVIEWING(1, "审核中"),
-    PASSED(2, "入库"),
+    PASSED(2, "通过"),
     REFUSED(3, "驳回");
 
     private int code;

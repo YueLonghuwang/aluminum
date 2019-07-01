@@ -130,7 +130,7 @@ public class ProcessService {
         taskEntity.setName(task.getName());
         taskEntity.setProcessId(task.getProcessInstanceId());
         taskEntity.setTaskAssignee(task.getAssignee());
-        taskEntity.setResourceEntity(getResourceEntity(task.getProcessInstanceId()));
+        taskEntity.setResourceEntity(getFirstOrNull(getResourceEntity(task.getProcessInstanceId())));
         return taskEntity;
     }
 
@@ -152,7 +152,7 @@ public class ProcessService {
             taskEntity.setName(task.getName());
             taskEntity.setProcessId(task.getProcessInstanceId());
             taskEntity.setTaskAssignee(task.getAssignee());
-            taskEntity.setResourceEntity(getResourceEntity(task.getProcessInstanceId()));
+            taskEntity.setResourceEntity(getFirstOrNull(getResourceEntity(task.getProcessInstanceId())));
             taskEntityList.add(taskEntity);
         }
         return taskEntityList;
@@ -169,12 +169,13 @@ public class ProcessService {
         HashMap<String, Object> map = new HashMap<>();
         map.put("ifApprove", ifApprove);
         taskService.complete(taskId, map);
+        ResourceEntity resourceEntity = updateResourceEntity(task.getProcessInstanceId(), ifApprove, task.getName());
         TaskEntity taskEntity = new TaskEntity();
         taskEntity.setId(taskId);
         taskEntity.setName(task.getName());
         taskEntity.setProcessId(task.getProcessInstanceId());
         taskEntity.setTaskAssignee(task.getAssignee());
-        taskEntity.setResourceEntity(getResourceEntity(task.getProcessInstanceId()));
+        taskEntity.setResourceEntity(resourceEntity);
         return taskEntity;
     }
 
@@ -244,20 +245,96 @@ public class ProcessService {
         }
     }
 
-    // 根据processId查找resource
-    public ResourceEntity getResourceEntity(String processId) {
+    // 根据processId查找resource,并返回resource对应的类型
+    public Map<Integer, ResourceEntity> getResourceEntity(String processId) {
         if (StringUtils.isEmpty(processId)) {
             throw new ResourceException(ApplicationMessageEnum.PROCESSID_NOT_FOUND);
         }
+        Map<Integer, ResourceEntity> map = new HashMap<>();
         if (modelResourceRepository.existsByProcessId(processId)) {
-            return modelResourceRepository.findByProcessId(processId);
+            map.put(ApplicationConfig.MODEL_RESOURCE, modelResourceRepository.findByProcessId(processId));
         } else if (standardRepository.existsByProcessId(processId)) {
-            return standardRepository.findByProcessId(processId);
+            map.put(ApplicationConfig.STANDARD_RESOURCE, standardRepository.findByProcessId(processId));
         } else if (algorithmAndServerRepository.existsByProcessId(processId)) {
-            return algorithmAndServerRepository.findByProcessId(processId);
+            map.put(ApplicationConfig.ALGORITHM_RESOURCE, algorithmAndServerRepository.findByProcessId(processId));
         } else {
-            return toolsAndSoftwareRepository.findByProcessId(processId);
+            map.put(ApplicationConfig.TOOLS_RESOURCE, toolsAndSoftwareRepository.findByProcessId(processId));
+        }
+        return map;
+    }
+
+    // 根据processId 及审批结果设置resource的状态
+    public ResourceEntity updateResourceEntity(String processId, String ifApprove, String name){
+        Map<Integer, ResourceEntity> map = getResourceEntity(processId);
+        Integer key = getKeyOrNull(map);
+        switch (key) {
+            case ApplicationConfig.MODEL_RESOURCE:
+                ModelResourceEntity modelResourceEntity = modelResourceRepository.findByProcessId(processId);
+                if(ifApprove.equals("驳回")){
+                    modelResourceEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
+                }
+                if(ifApprove.equals("通过") && name.equals("批准")){
+                    modelResourceEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
+                }
+                return modelResourceRepository.save(modelResourceEntity);
+            case ApplicationConfig.STANDARD_RESOURCE:
+                StandardEntity standardEntity = standardRepository.findByProcessId(processId);
+                if(ifApprove.equals("驳回")){
+                    standardEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
+                }
+                if(ifApprove.equals("通过") && name.equals("批准")){
+                    standardEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
+                }
+                return standardRepository.save(standardEntity);
+            case ApplicationConfig.ALGORITHM_RESOURCE:
+                AlgorithmAndServerEntity algorithmAndServerEntity = algorithmAndServerRepository.findByProcessId(processId);
+                if(ifApprove.equals("驳回")){
+                    algorithmAndServerEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
+                }
+                if(ifApprove.equals("通过") && name.equals("批准")){
+                    algorithmAndServerEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
+                }
+                return algorithmAndServerRepository.save(algorithmAndServerEntity);
+            case ApplicationConfig.TOOLS_RESOURCE:
+                ToolsAndSoftwareEntity toolsAndSoftwareEntity = toolsAndSoftwareRepository.findByProcessId(processId);
+                if(ifApprove.equals("驳回")){
+                    toolsAndSoftwareEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
+                }
+                if(ifApprove.equals("通过") && name.equals("批准")){
+                    toolsAndSoftwareEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
+                }
+                return toolsAndSoftwareRepository.save(toolsAndSoftwareEntity);
+            default:
+                throw new ResourceException(ApplicationMessageEnum.RESOURCE_TYPE_NOT_FOUND);
         }
     }
 
+    /**
+     * 获取map中第一个key值
+     */
+    private static Integer getKeyOrNull(Map<Integer, ResourceEntity> map) {
+        Integer obj = null;
+        for (Map.Entry<Integer, ResourceEntity> entry : map.entrySet()) {
+            obj = entry.getKey();
+            if (obj != null) {
+                break;
+            }
+        }
+        return  obj;
+    }
+
+
+    /**
+     * 获取map中第一个数据值
+     */
+    private static ResourceEntity getFirstOrNull(Map<Integer, ResourceEntity> map) {
+        ResourceEntity obj = null;
+        for (Map.Entry<Integer, ResourceEntity> entry : map.entrySet()) {
+            obj = entry.getValue();
+            if (obj != null) {
+                break;
+            }
+        }
+        return obj;
+    }
 }
