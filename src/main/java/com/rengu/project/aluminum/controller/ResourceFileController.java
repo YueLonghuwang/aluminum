@@ -37,7 +37,7 @@ public class ResourceFileController {
 
     // 根据资源Id上传文件
     @PostMapping(value = "/{resourceId}/upload/files")
-    public ResultEntity<Set<ResourceFileEntity>> uploadFiles(@PathVariable(value = "resourceId") String resourceId, @RequestParam(value = "parentNodeId", required = false) String parentNodeId, @RequestBody List<FileMetaEntity> fileMetaEntityList) {
+    public ResultEntity<Set<ResourceFileEntity>> uploadFiles(@PathVariable(value = "resourceId") String resourceId, @RequestParam(value = "parentNodeId") String parentNodeId, @RequestBody List<FileMetaEntity> fileMetaEntityList) throws InterruptedException {
         return new ResultEntity<>(resourceFileService.uploadFiles(resourceId, parentNodeId, fileMetaEntityList));
     }
 

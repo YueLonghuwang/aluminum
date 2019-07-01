@@ -26,7 +26,7 @@ import java.util.Set;
 
 @Slf4j
 @RestController
-@PreAuthorize(value = "hasRole('ADMIN')")
+@PreAuthorize(value = "hasAnyRole('ROLE_ADMIN','ROLE_AUDIT')")
 @RequestMapping(path = "/departments")
 public class DepartmentController {
 
@@ -65,19 +65,19 @@ public class DepartmentController {
         return new ResultEntity<>(userService.updateDepartmentByIds(userIds, departmentService.getDepartmentById(departmentId)));
     }
 
-    // 根据id添加成员
+    // 根据id删除成员
     @PatchMapping(value = "/{departmentId}/remove/users")
     public ResultEntity<Set<UserEntity>> departmentRemoveUsersById(@PathVariable(name = "departmentId") String departmentId, @RequestParam(value = "userIds") String[] userIds) {
         return new ResultEntity<>(userService.updateDepartmentByIds(userIds, null));
     }
 
-    // 根据id查询部门
+    //  按部门ID查询用户
     @GetMapping(value = "/{departmentId}/users")
     public ResultEntity<Page<UserEntity>> getDepartmentById(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable, @PathVariable(name = "departmentId") String departmentId) {
         return new ResultEntity<>(userService.getUsersByDepartment(pageable, departmentService.getDepartmentById(departmentId)));
     }
 
-    // 根据id查询部门
+    // 根据部门id查询部门
     @GetMapping(value = "/{departmentId}")
     public ResultEntity<DepartmentEntity> getDepartmentById(@PathVariable(name = "departmentId") String departmentId) {
         return new ResultEntity<>(departmentService.getDepartmentById(departmentId));

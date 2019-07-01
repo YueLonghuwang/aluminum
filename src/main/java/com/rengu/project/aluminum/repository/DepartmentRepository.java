@@ -4,6 +4,8 @@ import com.rengu.project.aluminum.entity.DepartmentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
  * com.rengu.project.aluminum.repository
  *
@@ -15,4 +17,6 @@ import org.springframework.stereotype.Repository;
 public interface DepartmentRepository extends JpaRepository<DepartmentEntity, String> {
 
     boolean existsByName(String name);
+
+    Optional<DepartmentEntity> findByName(String departmentName);
 }

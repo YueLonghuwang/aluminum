@@ -5,6 +5,7 @@ import com.rengu.project.aluminum.entity.ResourceFileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -25,4 +26,8 @@ public interface ResourceFileRepository extends JpaRepository<ResourceFileEntity
     Set<ResourceFileEntity> findByParentNodeAndResourceId(ResourceFileEntity parentNode, String resourceId);
 
     boolean existsByFileEntity(FileEntity fileEntity);
+
+    List<ResourceFileEntity> findByResourceId(String resourceId);
+
+    boolean existsByResourceId(String resourceId);
 }

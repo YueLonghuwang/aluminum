@@ -62,7 +62,7 @@ public abstract class ResourceService<T> {
     public abstract boolean hasStandardByNameAndVersionAndStatus(String name, String version, int... status);
 
     // 库的保存逻辑
-    protected void saveResourceCheck(ResourceEntity resourceEntity, UserEntity userEntity) {
+    void saveResourceCheck(ResourceEntity resourceEntity, UserEntity userEntity) {
         if (StringUtils.isEmpty(resourceEntity.getName())) {
             throw new ResourceException(ApplicationMessageEnum.RESOURCE_NAME_NOT_FOUND);
         }
@@ -80,11 +80,13 @@ public abstract class ResourceService<T> {
     }
 
     // 库的密级检查逻辑
-    protected void securityCheck(ResourceEntity resourceEntity, UserEntity userEntity) {
+    void securityCheck(ResourceEntity resourceEntity, UserEntity userEntity) {
         int resourceSecurity = SecurityClassificationEnum.getEnum(resourceEntity.getSecurityClassification()).getCode();
         int userSecurity = SecurityClassificationEnum.getEnum(userEntity.getSecurityClassification()).getCode();
         if (resourceSecurity > userSecurity) {
             throw new SecurityClassificationException(ApplicationMessageEnum.SECURITY_CLASSIFICATION_NOT_ENOUGH);
         }
     }
+
+
 }
