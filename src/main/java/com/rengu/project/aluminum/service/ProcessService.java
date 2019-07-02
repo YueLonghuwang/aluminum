@@ -1,17 +1,17 @@
 package com.rengu.project.aluminum.service;
 
+import com.rengu.project.aluminum.ApplicationConfig;
 import com.rengu.project.aluminum.entity.*;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.enums.ResourceStatusEnum;
-import com.rengu.project.aluminum.exception.ProcessException;
 import com.rengu.project.aluminum.exception.ResourceException;
-import com.rengu.project.aluminum.repository.AlgorithmAndServerRepository;
-import com.rengu.project.aluminum.repository.ModelResourceRepository;
-import com.rengu.project.aluminum.repository.StandardRepository;
-import com.rengu.project.aluminum.repository.ToolsAndSoftwareRepository;
+import com.rengu.project.aluminum.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.BpmnModel;
-import org.flowable.engine.*;
+import org.flowable.engine.ProcessEngineConfiguration;
+import org.flowable.engine.RepositoryService;
+import org.flowable.engine.RuntimeService;
+import org.flowable.engine.TaskService;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.image.ProcessDiagramGenerator;
@@ -19,7 +19,6 @@ import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.rengu.project.aluminum.ApplicationConfig;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -48,9 +47,10 @@ public class ProcessService {
     private final StandardRepository standardRepository;
     private final AlgorithmAndServerRepository algorithmAndServerRepository;
     private final ToolsAndSoftwareRepository toolsAndSoftwareRepository;
+    private final ApplicationRecordRepository applicationRecordRepository;
 
     @Autowired
-    public ProcessService(RuntimeService runtimeService, TaskService taskService, UserService userService, RepositoryService repositoryService, ProcessEngineConfiguration processEngineConfiguration, DepartmentService departmentService, ModelResourceRepository modelResourceRepository, StandardRepository standardRepository, ToolsAndSoftwareRepository toolsAndSoftwareRepository, AlgorithmAndServerRepository algorithmAndServerRepository) {
+    public ProcessService(RuntimeService runtimeService, TaskService taskService, UserService userService, RepositoryService repositoryService, ProcessEngineConfiguration processEngineConfiguration, DepartmentService departmentService, ModelResourceRepository modelResourceRepository, StandardRepository standardRepository, ToolsAndSoftwareRepository toolsAndSoftwareRepository, AlgorithmAndServerRepository algorithmAndServerRepository, ApplicationRecordRepository applicationRecordRepository) {
         this.runtimeService = runtimeService;
         this.taskService = taskService;
         this.userService = userService;
@@ -61,54 +61,21 @@ public class ProcessService {
         this.standardRepository = standardRepository;
         this.toolsAndSoftwareRepository = toolsAndSoftwareRepository;
         this.algorithmAndServerRepository = algorithmAndServerRepository;
+        this.applicationRecordRepository = applicationRecordRepository;
     }
 
-    // 启动流程
-    @Transactional
-    public ProcessEntity startProcess(String userId, String departmentId, int resourceType, String resourceId) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("userId", userId);
-        map.put("departmentId", departmentId);
-        map.put("resourceId", resourceId);
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("audit", map);
-        String processId = processInstance.getId();              // 流程id
-        ProcessEntity processEntity = new ProcessEntity();
-        switch (resourceType) {                                  // 保存流程节点到resource
-            case ApplicationConfig.MODEL_RESOURCE:
-                ModelResourceEntity modelResourceEntity = modelResourceRepository.findById(resourceId).get();
-                modelResourceEntity.setProcessId(processId);
-                modelResourceEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
-                modelResourceRepository.save(modelResourceEntity);
-                processEntity.setResourceEntity(modelResourceEntity);
+    /**
+     * 获取map中第一个key值
+     */
+    private static Integer getKeyOrNull(Map<Integer, ResourceEntity> map) {
+        Integer obj = null;
+        for (Map.Entry<Integer, ResourceEntity> entry : map.entrySet()) {
+            obj = entry.getKey();
+            if (obj != null) {
                 break;
-            case ApplicationConfig.STANDARD_RESOURCE:
-                StandardEntity standardEntity = standardRepository.findById(resourceId).get();
-                standardEntity.setProcessId(processId);
-                standardEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
-                standardRepository.save(standardEntity);
-                processEntity.setResourceEntity(standardEntity);
-                break;
-            case ApplicationConfig.ALGORITHM_RESOURCE:
-                AlgorithmAndServerEntity algorithmAndServerEntity = algorithmAndServerRepository.findById(resourceId).get();
-                algorithmAndServerEntity.setProcessId(processId);
-                algorithmAndServerEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
-                algorithmAndServerRepository.save(algorithmAndServerEntity);
-                processEntity.setResourceEntity(algorithmAndServerEntity);
-                break;
-            case ApplicationConfig.TOOLS_RESOURCE:
-                ToolsAndSoftwareEntity toolsAndSoftwareEntity = toolsAndSoftwareRepository.findById(resourceId).get();
-                toolsAndSoftwareEntity.setProcessId(processId);
-                toolsAndSoftwareEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
-                toolsAndSoftwareRepository.save(toolsAndSoftwareEntity);
-                processEntity.setResourceEntity(toolsAndSoftwareEntity);
-                break;
-            default:
-                throw new ResourceException(ApplicationMessageEnum.RESOURCE_TYPE_NOT_FOUND);
+            }
         }
-        processEntity.setResourceType(resourceType);
-        processEntity.setId(processId);
-        processEntity.setUserEntity(userService.getUserById(userId));
-        return processEntity;
+        return obj;
     }
 
     //  获取某部门的任务列表
@@ -119,19 +86,73 @@ public class ProcessService {
         return getTaskList(tasks);
     }
 
-    // 申领任务
+    // 启动流程
     @Transactional
-    public TaskEntity claimTask(String taskId, String userId){
-        UserEntity userEntity = userService.getUserById(userId);
-        taskService.claim(taskId, userEntity.getUsername());
-        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
-        TaskEntity taskEntity = new TaskEntity();
-        taskEntity.setId(taskId);
-        taskEntity.setName(task.getName());
-        taskEntity.setProcessId(task.getProcessInstanceId());
-        taskEntity.setTaskAssignee(task.getAssignee());
-        taskEntity.setResourceEntity(getFirstOrNull(getResourceEntity(task.getProcessInstanceId())));
-        return taskEntity;
+    public ProcessEntity startProcess(String userId, String departmentId, int resourceType, String resourceId, int applicationStatus, String explain) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("departmentId", departmentId);
+        map.put("resourceId", resourceId);
+        ApplicationRecord applicationRecord = new ApplicationRecord();
+        applicationRecord.setUsers(userService.getUserById(userId));
+        applicationRecord.setApprovalStatus(ResourceStatusEnum.REVIEWING.getCode());
+        applicationRecord.setApplicationStatus(applicationStatus);
+        applicationRecord.setExplainInfo(explain);
+        applicationRecord.setResourceType(resourceType);
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("audit", map);
+        String processId = processInstance.getId();              // 流程id
+        ProcessEntity processEntity = new ProcessEntity();
+        switch (resourceType) {                                  // 保存流程节点到resource
+            case ApplicationConfig.MODEL_RESOURCE:
+                ModelResourceEntity modelResourceEntity = modelResourceRepository.findById(resourceId).get();
+                modelResourceEntity.setProcessId(processId);
+                modelResourceEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
+                modelResourceRepository.save(modelResourceEntity);
+                // 保存审核状态
+                processEntity.setResourceEntity(modelResourceEntity);
+                // 保存资源密级
+                applicationRecord.setSecurityClassification(modelResourceEntity.getSecurityClassification());
+                applicationRecord.setModelResource(modelResourceEntity);
+                break;
+
+            case ApplicationConfig.STANDARD_RESOURCE:
+                StandardEntity standardEntity = standardRepository.findById(resourceId).get();
+                standardEntity.setProcessId(processId);
+                standardEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
+                standardRepository.save(standardEntity);
+                // 保存审核状态
+                applicationRecord.setStandard(standardEntity);
+                applicationRecord.setSecurityClassification(standardEntity.getSecurityClassification());
+                processEntity.setResourceEntity(standardEntity);
+                break;
+            case ApplicationConfig.ALGORITHM_RESOURCE:
+                AlgorithmAndServerEntity algorithmAndServerEntity = algorithmAndServerRepository.findById(resourceId).get();
+                algorithmAndServerEntity.setProcessId(processId);
+                algorithmAndServerEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
+                algorithmAndServerRepository.save(algorithmAndServerEntity);
+                // 保存审核状态
+                applicationRecord.setAlgorithmServer(algorithmAndServerEntity);
+                applicationRecord.setSecurityClassification(algorithmAndServerEntity.getSecurityClassification());
+                processEntity.setResourceEntity(algorithmAndServerEntity);
+                break;
+            case ApplicationConfig.TOOLS_RESOURCE:
+                ToolsAndSoftwareEntity toolsAndSoftwareEntity = toolsAndSoftwareRepository.findById(resourceId).get();
+                toolsAndSoftwareEntity.setProcessId(processId);
+                toolsAndSoftwareEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
+                toolsAndSoftwareRepository.save(toolsAndSoftwareEntity);
+                // 保存审核状态
+                applicationRecord.setToolsSoftware(toolsAndSoftwareEntity);
+                applicationRecord.setSecurityClassification(toolsAndSoftwareEntity.getSecurityClassification());
+                processEntity.setResourceEntity(toolsAndSoftwareEntity);
+                break;
+            default:
+                throw new ResourceException(ApplicationMessageEnum.RESOURCE_TYPE_NOT_FOUND);
+        }
+        processEntity.setResourceType(resourceType);
+        processEntity.setId(processId);
+        processEntity.setUserEntity(userService.getUserById(userId));
+        applicationRecordRepository.save(applicationRecord);
+        return processEntity;
     }
 
     // 获取给定任务办理人的任务列表,或申领任务的列表
@@ -143,19 +164,19 @@ public class ProcessService {
         // return taskService.createTaskQuery().taskAssignee(userId).list();
     }
 
-    // 根据任务返回任务列表
-    public List<TaskEntity> getTaskList(List<Task> tasks){
-        List<TaskEntity> taskEntityList = new ArrayList<>();
-        for (Task task : tasks) {
-            TaskEntity taskEntity = new TaskEntity();
-            taskEntity.setId(task.getId());
-            taskEntity.setName(task.getName());
-            taskEntity.setProcessId(task.getProcessInstanceId());
-            taskEntity.setTaskAssignee(task.getAssignee());
-            taskEntity.setResourceEntity(getFirstOrNull(getResourceEntity(task.getProcessInstanceId())));
-            taskEntityList.add(taskEntity);
-        }
-        return taskEntityList;
+    // 申领任务
+    @Transactional
+    public TaskEntity claimTask(String taskId, String userId) {
+        UserEntity userEntity = userService.getUserById(userId);
+        taskService.claim(taskId, userEntity.getUsername());
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        TaskEntity taskEntity = new TaskEntity();
+        taskEntity.setId(taskId);
+        taskEntity.setName(task.getName());
+        taskEntity.setProcessId(task.getProcessInstanceId());
+        taskEntity.setTaskAssignee(task.getAssignee());
+        taskEntity.setResourceEntity(getFirstOrNull(getResourceEntity(task.getProcessInstanceId())));
+        return taskEntity;
     }
 
     //批准
@@ -197,9 +218,42 @@ public class ProcessService {
         taskService.complete(taskId);
     }
 
+    // 根据任务返回任务列表
+    public List<TaskEntity> getTaskList(List<Task> tasks) {
+        List<TaskEntity> taskEntityList = new ArrayList<>();
+        for (Task task : tasks) {
+            TaskEntity taskEntity = new TaskEntity();
+            taskEntity.setId(task.getId());
+            taskEntity.setName(task.getName());
+            taskEntity.setProcessId(task.getProcessInstanceId());
+            taskEntity.setTaskAssignee(task.getAssignee());
+            taskEntity.setResourceEntity(getFirstOrNull(getResourceEntity(task.getProcessInstanceId())));
+            taskEntityList.add(taskEntity);
+        }
+        return taskEntityList;
+    }
+
+    // 根据processId查找resource,并返回resource对应的类型
+    public Map<Integer, ResourceEntity> getResourceEntity(String processId) {
+        if (StringUtils.isEmpty(processId)) {
+            throw new ResourceException(ApplicationMessageEnum.PROCESSID_NOT_FOUND);
+        }
+        Map<Integer, ResourceEntity> map = new HashMap<>();
+        if (modelResourceRepository.existsByProcessId(processId)) {
+            map.put(ApplicationConfig.MODEL_RESOURCE, modelResourceRepository.findByProcessId(processId));
+        } else if (standardRepository.existsByProcessId(processId)) {
+            map.put(ApplicationConfig.STANDARD_RESOURCE, standardRepository.findByProcessId(processId));
+        } else if (algorithmAndServerRepository.existsByProcessId(processId)) {
+            map.put(ApplicationConfig.ALGORITHM_RESOURCE, algorithmAndServerRepository.findByProcessId(processId));
+        } else {
+            map.put(ApplicationConfig.TOOLS_RESOURCE, toolsAndSoftwareRepository.findByProcessId(processId));
+        }
+        return map;
+    }
+
     // 根据流程id获取流程图
     public void getProcessDiagram(HttpServletResponse httpServletResponse, String processId) throws Exception {
-       ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(processId).singleResult();
+        ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(processId).singleResult();
 
         //流程走完的不显示图
         if (pi == null) {
@@ -245,82 +299,78 @@ public class ProcessService {
         }
     }
 
-    // 根据processId查找resource,并返回resource对应的类型
-    public Map<Integer, ResourceEntity> getResourceEntity(String processId) {
-        if (StringUtils.isEmpty(processId)) {
-            throw new ResourceException(ApplicationMessageEnum.PROCESSID_NOT_FOUND);
-        }
-        Map<Integer, ResourceEntity> map = new HashMap<>();
-        if (modelResourceRepository.existsByProcessId(processId)) {
-            map.put(ApplicationConfig.MODEL_RESOURCE, modelResourceRepository.findByProcessId(processId));
-        } else if (standardRepository.existsByProcessId(processId)) {
-            map.put(ApplicationConfig.STANDARD_RESOURCE, standardRepository.findByProcessId(processId));
-        } else if (algorithmAndServerRepository.existsByProcessId(processId)) {
-            map.put(ApplicationConfig.ALGORITHM_RESOURCE, algorithmAndServerRepository.findByProcessId(processId));
-        } else {
-            map.put(ApplicationConfig.TOOLS_RESOURCE, toolsAndSoftwareRepository.findByProcessId(processId));
-        }
-        return map;
-    }
-
     // 根据processId 及审批结果设置resource的状态
-    public ResourceEntity updateResourceEntity(String processId, String ifApprove, String name){
+    public ResourceEntity updateResourceEntity(String processId, String ifApprove, String name) {
         Map<Integer, ResourceEntity> map = getResourceEntity(processId);
         Integer key = getKeyOrNull(map);
         switch (key) {
             case ApplicationConfig.MODEL_RESOURCE:
                 ModelResourceEntity modelResourceEntity = modelResourceRepository.findByProcessId(processId);
-                if(ifApprove.equals("驳回")){
+                ApplicationRecord applicationRecordModel = applicationRecordRepository.findByModelResource(modelResourceEntity).get();
+                if (ifApprove.equals("驳回")) {
+                    applicationRecordModel.setCurrentStatus(0);
+                    applicationRecordModel.setApprovalStatus(ResourceStatusEnum.REFUSED.getCode());
                     modelResourceEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
                 }
-                if(ifApprove.equals("通过") && name.equals("批准")){
+                if (ifApprove.equals("通过") && name.equals("批准")) {
+                    // 当前状态+1
+                    applicationRecordModel.setCurrentStatus(applicationRecordModel.getCurrentStatus() + 1);
+                    applicationRecordModel.setApprovalStatus(ResourceStatusEnum.PASSED.getCode());
                     modelResourceEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
                 }
+                applicationRecordRepository.save(applicationRecordModel);
                 return modelResourceRepository.save(modelResourceEntity);
             case ApplicationConfig.STANDARD_RESOURCE:
                 StandardEntity standardEntity = standardRepository.findByProcessId(processId);
-                if(ifApprove.equals("驳回")){
+                ApplicationRecord applicationRecordStandard = applicationRecordRepository.findByStandard(standardEntity).get();
+                if (ifApprove.equals("驳回")) {
+                    applicationRecordStandard.setCurrentStatus(0);
+                    applicationRecordStandard.setApprovalStatus(ResourceStatusEnum.REFUSED.getCode());
                     standardEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
                 }
-                if(ifApprove.equals("通过") && name.equals("批准")){
+                if (ifApprove.equals("通过") && name.equals("批准")) {
+                    // 当前状态+1
+                    applicationRecordStandard.setCurrentStatus(applicationRecordStandard.getCurrentStatus() + 1);
+                    applicationRecordStandard.setApprovalStatus(ResourceStatusEnum.PASSED.getCode());
                     standardEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
                 }
+                applicationRecordRepository.save(applicationRecordStandard);
                 return standardRepository.save(standardEntity);
             case ApplicationConfig.ALGORITHM_RESOURCE:
                 AlgorithmAndServerEntity algorithmAndServerEntity = algorithmAndServerRepository.findByProcessId(processId);
-                if(ifApprove.equals("驳回")){
+                ApplicationRecord applicationRecordAlgorithmAndServer = applicationRecordRepository.findByAlgorithmServer(algorithmAndServerEntity).get();
+                if (ifApprove.equals("驳回")) {
+                    applicationRecordAlgorithmAndServer.setCurrentStatus(0);
+                    applicationRecordAlgorithmAndServer.setApprovalStatus(ResourceStatusEnum.REFUSED.getCode());
                     algorithmAndServerEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
                 }
-                if(ifApprove.equals("通过") && name.equals("批准")){
+                if (ifApprove.equals("通过") && name.equals("批准")) {
+                    // 当前状态+1
+                    applicationRecordAlgorithmAndServer.setCurrentStatus(applicationRecordAlgorithmAndServer.getCurrentStatus() + 1);
+                    applicationRecordAlgorithmAndServer.setApprovalStatus(ResourceStatusEnum.PASSED.getCode());
                     algorithmAndServerEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
                 }
+                applicationRecordRepository.save(applicationRecordAlgorithmAndServer);
                 return algorithmAndServerRepository.save(algorithmAndServerEntity);
             case ApplicationConfig.TOOLS_RESOURCE:
                 ToolsAndSoftwareEntity toolsAndSoftwareEntity = toolsAndSoftwareRepository.findByProcessId(processId);
-                if(ifApprove.equals("驳回")){
+                ApplicationRecord applicationRecordToolsAndSoftware = applicationRecordRepository.findByToolsSoftware(toolsAndSoftwareEntity).get();
+                if (ifApprove.equals("驳回")) {
+                    applicationRecordToolsAndSoftware.setCurrentStatus(0);
+                    applicationRecordToolsAndSoftware.setApprovalStatus(ResourceStatusEnum.REFUSED.getCode());
                     toolsAndSoftwareEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
                 }
-                if(ifApprove.equals("通过") && name.equals("批准")){
+                if (ifApprove.equals("通过") && name.equals("批准")) {
+                    // 当前状态+1
+                    applicationRecordToolsAndSoftware.setCurrentStatus(applicationRecordToolsAndSoftware.getCurrentStatus() + 1);
+                    applicationRecordToolsAndSoftware.setApprovalStatus(ResourceStatusEnum.PASSED.getCode());
                     toolsAndSoftwareEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
                 }
+                applicationRecordRepository.save(applicationRecordToolsAndSoftware);
                 return toolsAndSoftwareRepository.save(toolsAndSoftwareEntity);
             default:
                 throw new ResourceException(ApplicationMessageEnum.RESOURCE_TYPE_NOT_FOUND);
         }
-    }
-
-    /**
-     * 获取map中第一个key值
-     */
-    private static Integer getKeyOrNull(Map<Integer, ResourceEntity> map) {
-        Integer obj = null;
-        for (Map.Entry<Integer, ResourceEntity> entry : map.entrySet()) {
-            obj = entry.getKey();
-            if (obj != null) {
-                break;
-            }
-        }
-        return  obj;
     }
 
 

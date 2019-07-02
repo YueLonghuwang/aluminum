@@ -20,6 +20,7 @@ import java.io.File;
 @ConfigurationProperties(prefix = "config")
 public class ApplicationConfig {
 
+
     // 默认角色名称
     private String DEFAULT_ADMIN_ROLE_NAME;
     private String DEFAULT_AUDIT_ROLE_NAME;
@@ -45,7 +46,11 @@ public class ApplicationConfig {
     private String OAUTH_CLIENT_SECRET;
     private String OAUTH_CLIENT_SCOPES;
     private String OAUTH_JWT_SIGNINGKEY;
-
+    // 入库出库状态
+    public static final int BE_PUT_IN_STORAGE = 0; // 入库
+    public static final int PUT_IN_STORAGE = 0; // 出库
+    // 通过所有审核
+    public static final int PASS_ALL_AUDIT = 4;
     // resource类型
     public static final int MODEL_RESOURCE = 0;                          // 模型资源
     public static final int STANDARD_RESOURCE = 1;                       // 标准规范

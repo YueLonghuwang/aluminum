@@ -5,6 +5,7 @@ import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.exception.DepartmentException;
+import com.rengu.project.aluminum.repository.DepartmentRepository;
 import com.rengu.project.aluminum.repository.UserRepository;
 import com.rengu.project.aluminum.service.DepartmentService;
 import com.rengu.project.aluminum.service.UserService;
@@ -17,6 +18,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,11 +41,13 @@ public class DepartmentController {
     private final DepartmentService departmentService;
     private final UserService userService;
     private final UserRepository userRepository;
+    private final DepartmentRepository departmentRepository;
 
-    public DepartmentController(DepartmentService departmentService, UserService userService, UserRepository userRepository) {
+    public DepartmentController(DepartmentService departmentService, UserService userService, UserRepository userRepository, DepartmentRepository departmentRepository) {
         this.departmentService = departmentService;
         this.userService = userService;
         this.userRepository = userRepository;
+        this.departmentRepository = departmentRepository;
     }
 
 
@@ -58,6 +63,15 @@ public class DepartmentController {
         return new ResultEntity(selectFrom(userRepository).where(filter).findAll());
     }
 
+    @PostMapping("/departmentName/keyWord")
+    public ResultEntity getDepartmentNameAndUserName(@RequestBody Filter filter) {
+        List<DepartmentEntity> departmentEntityList = selectFrom(departmentRepository).where(filter).findAll();
+        List<UserEntity> userEntityList = new ArrayList<>();
+        for (DepartmentEntity departmentEntity : departmentEntityList) {
+            userEntityList.addAll(userService.getUsersByDepartment(departmentEntity));
+        }
+        return new ResultEntity(userEntityList);
+    }
     // 保存部门
     @PostMapping
     public ResultEntity<DepartmentEntity> saveDepartment(DepartmentEntity departmentEntity) {

@@ -1,11 +1,14 @@
 package com.rengu.project.aluminum.service;
 
+import com.rengu.project.aluminum.ApplicationConfig;
+import com.rengu.project.aluminum.entity.ApplicationRecord;
 import com.rengu.project.aluminum.entity.ModelResourceEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.enums.ResourceStatusEnum;
 import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import com.rengu.project.aluminum.exception.ResourceException;
+import com.rengu.project.aluminum.repository.ApplicationRecordRepository;
 import com.rengu.project.aluminum.repository.ModelResourceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -20,6 +23,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -32,10 +37,14 @@ import java.util.Optional;
 public class ModelResourceService extends ResourceService<ModelResourceEntity> {
     private final ModelResourceRepository modelResourceRepository;
     private final ResourceFileService resourceFileService;
+    private final UserService userService;
+    private final ApplicationRecordRepository applicationRecordRepository;
 
-    public ModelResourceService(ModelResourceRepository modelResourceRepository, ResourceFileService resourceFileService) {
+    public ModelResourceService(ModelResourceRepository modelResourceRepository, ResourceFileService resourceFileService, UserService userService, ApplicationRecordRepository applicationRecordRepository) {
         this.modelResourceRepository = modelResourceRepository;
         this.resourceFileService = resourceFileService;
+        this.userService = userService;
+        this.applicationRecordRepository = applicationRecordRepository;
     }
 
     // 保存模型资源
@@ -123,14 +132,14 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
 
     // 通过密级获取资源
     @Override
-    public Page getResourcesBysecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum) {
-        return modelResourceRepository.findBySecurityClassificationLessThanEqualAndStatus(pageable, securityClassificationEnum.getCode(), ResourceStatusEnum.PASSED.getCode());
+    public Page getResourcesBySecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum, int status) {
+        return modelResourceRepository.findBySecurityClassificationLessThanEqualAndStatus(pageable, securityClassificationEnum.getCode(), status);
     }
 
     //
     @Override
-    public Page getResourcesByUser(Pageable pageable, UserEntity userEntity) {
-        return getResourcesBysecurityClassification(pageable, SecurityClassificationEnum.getEnum(userEntity.getSecurityClassification()));
+    public Page getResourcesByUser(Pageable pageable, UserEntity userEntity, int status) {
+        return getResourcesBySecurityClassification(pageable, SecurityClassificationEnum.getEnum(userEntity.getSecurityClassification()), status);
     }
 
     @Override
@@ -158,10 +167,27 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
         return modelResourceRepository.findByNameAndVersionAndStatusIn(name, version, status).get();
     }
 
-    // 入库
-    public ModelResourceEntity putInStorage(ModelResourceEntity modelResourceEntity) {
-        super.putInStorage(modelResourceEntity);
-        return modelResourceRepository.save(modelResourceEntity);
+
+    public List<ApplicationRecord> getPutInStorageResources(String userId) {
+        List<ApplicationRecord> applicationRecordList = applicationRecordRepository.findAll();
+        List<ApplicationRecord> applicationRecordArrayList = new ArrayList<>();
+        for (ApplicationRecord applicationRecord : applicationRecordList) {
+            if (applicationRecord.getModelResource().getSecurityClassification() <= userService.getUserById(userId).getSecurityClassification()) {
+                applicationRecordArrayList.add(applicationRecord);
+            }
+        }
+        return applicationRecordArrayList;
     }
 
+    // 根据用户姓名查询入库资源文件
+    public Page<ApplicationRecord> getPassResource(UserEntity userEntity, Pageable pageable) {
+        // 根据资源类型，资源是否批准完成状态，出库还是入库状态，以及等级权限进行判断
+        return applicationRecordRepository.findByResourceTypeAndApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(pageable, ApplicationConfig.MODEL_RESOURCE, ApplicationConfig.BE_PUT_IN_STORAGE, ApplicationConfig.PASS_ALL_AUDIT, userEntity.getSecurityClassification());
+    }
+
+    // 根据用户姓名查询出库资源文件
+    public Page<ApplicationRecord> getOutResources(UserEntity userEntity, Pageable pageable) {
+        // 根据资源类型，资源是否批准完成状态，出库还是入库状态，以及等级权限进行判断
+        return applicationRecordRepository.findByResourceTypeAndApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(pageable, ApplicationConfig.ALGORITHM_RESOURCE, ApplicationConfig.PUT_IN_STORAGE, ApplicationConfig.PASS_ALL_AUDIT, userEntity.getSecurityClassification());
+    }
 }
