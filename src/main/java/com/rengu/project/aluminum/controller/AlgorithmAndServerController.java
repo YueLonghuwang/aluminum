@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static com.rengu.project.aluminum.specification.SpecificationBuilder.selectFrom;
 
@@ -111,4 +112,9 @@ public class AlgorithmAndServerController {
         return new ResultEntity(algorithmAndServerService.getOutResources(userEntity, pageable));
     }
 
+    // 根据资源ID查询当前资源文件内所有内容
+    @GetMapping(value = "/{resourceId}/getAllFiles")
+    public ResultEntity<List<Object>> getAllFiles(@PathVariable(value = "resourceId") String resourceId) {
+        return new ResultEntity<>(algorithmAndServerService.getAllFilesById(resourceId));
+    }
 }

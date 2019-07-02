@@ -182,4 +182,9 @@ public class ToolsAndSoftwareService extends ResourceService<ToolsAndSoftwareEnt
         // 根据资源类型，资源是否批准完成状态，出库还是入库状态，以及等级权限进行判断
         return applicationRecordRepository.findByResourceTypeAndApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(pageable, ApplicationConfig.ALGORITHM_RESOURCE, ApplicationConfig.PUT_IN_STORAGE, ApplicationConfig.PASS_ALL_AUDIT, userEntity.getSecurityClassification());
     }
+
+    // 根据资源ID查询该资源所有的文件
+    public List<Object> getAllFilesById(String resourceId) {
+        return resourceFileService.getAllFilesById(resourceId);
+    }
 }

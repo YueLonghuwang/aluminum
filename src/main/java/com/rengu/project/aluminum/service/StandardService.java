@@ -1,6 +1,9 @@
 package com.rengu.project.aluminum.service;
 
-import com.rengu.project.aluminum.entity.*;
+import com.rengu.project.aluminum.entity.FileEntity;
+import com.rengu.project.aluminum.entity.PreviewFile;
+import com.rengu.project.aluminum.entity.StandardEntity;
+import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.enums.ResourceStatusEnum;
 import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
@@ -23,7 +26,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 //import com.rengu.project.aluminum.util.PreviewFileInit;
 
@@ -166,17 +170,7 @@ public class StandardService extends ResourceService<StandardEntity> {
 
     // 根据资源ID查询该资源所有的文件
     public List<Object> getAllFilesById(String resourceId) {
-        List<Object> fileEntityList = new ArrayList<>();
-        List<ResourceFileEntity> resourceFileEntityList = resourceFileRepository.findByResourceId(resourceId);
-        for (ResourceFileEntity resourceFileEntity : resourceFileEntityList) {
-            FileEntity fileEntity = resourceFileEntity.getFileEntity();
-            Map map = new HashMap<>();
-            map.put("FileEntity", resourceFileEntity.getFileEntity());
-            map.put("name", resourceFileEntity.getName());
-            fileEntityList.add(map);
-            log.info(fileEntity.getLocalPath());
-        }
-        return fileEntityList;
+        return resourceFileService.getAllFilesById(resourceId);
     }
 
     public PreviewFile readPDF(String fileId) {
