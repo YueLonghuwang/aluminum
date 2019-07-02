@@ -1,11 +1,13 @@
 package com.rengu.project.aluminum.service;
 
+import com.rengu.project.aluminum.entity.ApplicationRecord;
 import com.rengu.project.aluminum.entity.ToolsAndSoftwareEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.enums.ResourceStatusEnum;
 import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import com.rengu.project.aluminum.exception.ResourceException;
+import com.rengu.project.aluminum.repository.ApplicationRecordRepository;
 import com.rengu.project.aluminum.repository.ToolsAndSoftwareRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -20,6 +22,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -33,10 +37,14 @@ import java.util.Optional;
 public class ToolsAndSoftwareService extends ResourceService<ToolsAndSoftwareEntity> {
     private final ToolsAndSoftwareRepository toolsAndSoftwareRepository;
     private final ResourceFileService resourceFileService;
+    private final ApplicationRecordRepository applicationRecordRepository;
+    private final UserService userService;
 
-    public ToolsAndSoftwareService(ToolsAndSoftwareRepository toolsAndSoftwareRepository, ResourceFileService resourceFileService) {
+    public ToolsAndSoftwareService(ToolsAndSoftwareRepository toolsAndSoftwareRepository, ResourceFileService resourceFileService, ApplicationRecordRepository applicationRecordRepository, UserService userService) {
         this.toolsAndSoftwareRepository = toolsAndSoftwareRepository;
         this.resourceFileService = resourceFileService;
+        this.applicationRecordRepository = applicationRecordRepository;
+        this.userService = userService;
     }
 
     // 保存模型资源
@@ -149,5 +157,16 @@ public class ToolsAndSoftwareService extends ResourceService<ToolsAndSoftwareEnt
             return false;
         }
         return toolsAndSoftwareRepository.existsByNameAndVersionAndStatusIn(name, version, status);
+    }
+
+    public List<ApplicationRecord> getPutInStorageResources(String userId) {
+        List<ApplicationRecord> applicationRecordList = applicationRecordRepository.findAll();
+        List<ApplicationRecord> applicationRecordArrayList = new ArrayList<>();
+        for (ApplicationRecord applicationRecord : applicationRecordList) {
+            if (applicationRecord.getToolsSoftware().getSecurityClassification() <= userService.getUserById(userId).getSecurityClassification()) {
+                applicationRecordArrayList.add(applicationRecord);
+            }
+        }
+        return applicationRecordArrayList;
     }
 }

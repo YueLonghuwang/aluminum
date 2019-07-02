@@ -1,12 +1,14 @@
 package com.rengu.project.aluminum.service;
 
 import com.rengu.project.aluminum.entity.AlgorithmAndServerEntity;
+import com.rengu.project.aluminum.entity.ApplicationRecord;
 import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.enums.ResourceStatusEnum;
 import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import com.rengu.project.aluminum.exception.ResourceException;
 import com.rengu.project.aluminum.repository.AlgorithmAndServerRepository;
+import com.rengu.project.aluminum.repository.ApplicationRecordRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,6 +22,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -31,11 +35,14 @@ import java.util.Optional;
 @Transactional
 public class AlgorithmAndServerService extends ResourceService<AlgorithmAndServerEntity> {
     private final AlgorithmAndServerRepository algorithmAndServerRepository;
-
+    private final ApplicationRecordRepository applicationRecordRepository;
+    private final UserService userService;
     private final ResourceFileService resourceFileService;
 
-    public AlgorithmAndServerService(AlgorithmAndServerRepository algorithmAndServerRepository, ResourceFileService resourceFileService) {
+    public AlgorithmAndServerService(AlgorithmAndServerRepository algorithmAndServerRepository, ApplicationRecordRepository applicationRecordRepository, UserService userService, ResourceFileService resourceFileService) {
         this.algorithmAndServerRepository = algorithmAndServerRepository;
+        this.applicationRecordRepository = applicationRecordRepository;
+        this.userService = userService;
         this.resourceFileService = resourceFileService;
     }
 
@@ -149,5 +156,16 @@ public class AlgorithmAndServerService extends ResourceService<AlgorithmAndServe
             return false;
         }
         return algorithmAndServerRepository.existsByNameAndVersionAndStatusIn(name, version, status);
+    }
+
+    public List<ApplicationRecord> getPutInStorageResources(String userId) {
+        List<ApplicationRecord> applicationRecordList = applicationRecordRepository.findAll();
+        List<ApplicationRecord> applicationRecordArrayList = new ArrayList<>();
+        for (ApplicationRecord applicationRecord : applicationRecordList) {
+            if (applicationRecord.getAlgorithmServer().getSecurityClassification() <= userService.getUserById(userId).getSecurityClassification()) {
+                applicationRecordArrayList.add(applicationRecord);
+            }
+        }
+        return applicationRecordArrayList;
     }
 }

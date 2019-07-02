@@ -101,4 +101,10 @@ public class AlgorithmAndServerController {
     public ResultEntity<Page<AlgorithmAndServerEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(algorithmAndServerService.getResources(pageable));
     }
+
+    // 通过用户获取出库的资源
+    @GetMapping("/{userId}/putInStorage")
+    public ResultEntity getResources(@PathVariable(value = "userId") String userId) {
+        return new ResultEntity<>(algorithmAndServerService.getPutInStorageResources(userId));
+    }
 }

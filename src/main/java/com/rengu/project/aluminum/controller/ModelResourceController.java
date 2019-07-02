@@ -99,24 +99,18 @@ public class ModelResourceController {
         httpServletResponse.flushBuffer();
     }
 
-    // 通过用户获取资源
+    // 通过用户获取入库后的资源
     @GetMapping(value = "/by/user")
     public ResultEntity<Page<ModelResourceEntity>> getResourcesByUser(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         UserEntity userEntity = userService.getUserByUsername(username);
         return new ResultEntity<>(modelResourceService.getResourcesByUser(pageable, userEntity));
     }
 
-
-    @GetMapping
-    public ResultEntity<Page<ModelResourceEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
-        return new ResultEntity<>(modelResourceService.getResources(pageable));
+    // 通过用户获取出库的资源
+    @GetMapping("/{userId}/putInStorage")
+    public ResultEntity getResources(@PathVariable(value = "userId") String userId) {
+        return new ResultEntity<>(modelResourceService.getPutInStorageResources(userId));
     }
 
-    // 入库
-    @PostMapping("/putInStorage")
-    public ResultEntity<ModelResourceEntity> putInStorage(ModelResourceEntity modelResourceEntity) {
-        return new ResultEntity<>(modelResourceService.putInStorage(modelResourceEntity));
-    }
-    // 出库
 
 }

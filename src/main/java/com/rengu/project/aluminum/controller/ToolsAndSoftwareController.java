@@ -101,4 +101,10 @@ public class ToolsAndSoftwareController {
     public ResultEntity<Page<ToolsAndSoftwareEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(toolsAndSoftwareService.getResources(pageable));
     }
+
+    // 通过用户获取出库的资源
+    @GetMapping("/{userId}/putInStorage")
+    public ResultEntity getResources(@PathVariable(value = "userId") String userId) {
+        return new ResultEntity<>(toolsAndSoftwareService.getPutInStorageResources(userId));
+    }
 }

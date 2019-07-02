@@ -3,14 +3,12 @@ package com.rengu.project.aluminum.controller;
 import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.TaskEntity;
 import com.rengu.project.aluminum.service.ProcessService;
-import org.flowable.task.api.Task;
-import org.flowable.engine.*;
+import org.flowable.engine.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -31,10 +29,9 @@ public class ProcessController {
 
     // 启动流程
     @PostMapping
-    public ResultEntity startProcessInstance(String userId, String departmentId, int resourceType, String resourceId) {
-        return new ResultEntity<>(processService.startProcess(userId, departmentId, resourceType, resourceId));
+    public ResultEntity startProcessInstance(String userId, String departmentId, int resourceType, String resourceId, int applicationStatus, String explain) {
+        return new ResultEntity<>(processService.startProcess(userId, departmentId, resourceType, resourceId, applicationStatus, explain));
     }
-
     // 查看部门任务列表
     @GetMapping(value="/departmentTasks/{departmentId}")
     public ResultEntity getDepartmentTasks(@PathVariable(value = "departmentId") String departmentId) {
@@ -53,6 +50,7 @@ public class ProcessController {
     }
 
     // 查看任务列表
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(value="/tasks/{userId}")
     public ResultEntity getTasks(@PathVariable(value = "userId") String userId) {
         List<TaskEntity> tasks = processService.getTasks(userId);
