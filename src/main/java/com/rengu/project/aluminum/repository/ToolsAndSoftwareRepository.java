@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
 public interface ToolsAndSoftwareRepository extends JpaRepository<ToolsAndSoftwareEntity, String>, JpaSpecificationExecutor<ToolsAndSoftwareEntity> {
     boolean existsByNameAndVersionAndStatusIn(String name, String version, int[] status);
 
-    Page<ModelResourceEntity> findBySecurityClassificationLessThanEqualAndStatus(Pageable pageable, int securityClassification, int status);
+    Page<ModelResourceEntity> findBySecurityClassificationLessThanEqualAndStatusIn(Pageable pageable, int securityClassification, int[] status);
 
     ToolsAndSoftwareEntity findByProcessId(String processId);
     boolean existsByProcessId(String processId);

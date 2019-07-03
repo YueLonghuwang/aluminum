@@ -131,12 +131,12 @@ public class StandardService extends ResourceService<StandardEntity> {
     }
 
     @Override
-    public Page<StandardEntity> getResourcesBySecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum, int status) {
+    public Page<StandardEntity> getResourcesBySecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum, int[] status) {
         return null;
     }
 
     @Override
-    public Page<StandardEntity> getResourcesByUser(Pageable pageable, UserEntity userEntity, int status) {
+    public Page<StandardEntity> getResourcesByUser(Pageable pageable, UserEntity userEntity, int[] status) {
         return null;
     }
 

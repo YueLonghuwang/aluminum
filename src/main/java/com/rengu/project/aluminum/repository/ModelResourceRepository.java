@@ -17,7 +17,8 @@ import java.util.Optional;
 public interface ModelResourceRepository extends JpaRepository<ModelResourceEntity, String>, JpaSpecificationExecutor<ModelResourceEntity> {
     boolean existsByNameAndVersionAndStatusIn(String name, String version, int[] status);
     Optional<ModelResourceEntity> findByNameAndVersionAndStatusIn(String name, String version, int[] status);
-    Page<ModelResourceEntity> findBySecurityClassificationLessThanEqualAndStatus(Pageable pageable, int securityClassification, int status);
+
+    Page<ModelResourceEntity> findBySecurityClassificationLessThanEqualAndStatusIn(Pageable pageable, int securityClassification, int[] status);
     ModelResourceEntity findByProcessId(String processId);
     boolean existsByProcessId(String processId);
 }

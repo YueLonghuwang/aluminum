@@ -17,10 +17,19 @@ public interface ApplicationRecordRepository extends JpaRepository<ApplicationRe
     Optional<ApplicationRecord> findByModelResource(ModelResourceEntity modelResourceEntity);
 
     Optional<ApplicationRecord> findByAlgorithmServer(AlgorithmAndServerEntity algorithmAndServerEntity);
-
     Optional<ApplicationRecord> findByToolsSoftware(ToolsAndSoftwareEntity toolsAndSoftwareEntity);
 
     Optional<ApplicationRecord> findByStandard(StandardEntity standardEntity);
+
+    Page<ApplicationRecord> findByApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int applicationStatus, int currentStatus, int securityClassification);
+
+    Page<ApplicationRecord> findByResourceTypeAndCurrentStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int resourceType, int currentStatus, int securityClassification);
+
+    Page<ApplicationRecord> findByResourceTypeAndApplicationStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int resourceType, int applicationStatus, int securityClassification);
+
+    Page<ApplicationRecord> findByResourceTypeAndApplicationStatusAndCurrentStatus(Pageable pageable, int resourceType, int applicationStatus, int currentStatus);
+
+    Page<ApplicationRecord> findByResourceType(Pageable pageable, int resourceType);
 
     Page<ApplicationRecord> findByResourceTypeAndApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int resourceType, int applicationStatus, int currentStatus, int securityClassification);
 }

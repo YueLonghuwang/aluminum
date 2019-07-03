@@ -102,12 +102,13 @@ public class ModelResourceController {
     @GetMapping(value = "/username/ByInitialStatus")
     public ResultEntity<Page<AlgorithmAndServerEntity>> getResourcesByInitialStatus(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         UserEntity userEntity = userService.getUserByUsername(username);
-        return new ResultEntity<>(modelResourceService.getResourcesByUser(pageable, userEntity, 0));
+        int[] status = {0, 1, 2};
+        return new ResultEntity<>(modelResourceService.getResourcesByUser(pageable, userEntity, status));
     }
 
     // 根据用户姓名查询入库的信息
     @GetMapping(value = "/username/ByPass")
-    public ResultEntity<Page<ApplicationRecord>> getResourcesByPass(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResultEntity<Page<ApplicationRecord>> getResourcesByPass(@AuthenticationPrincipal String username, Pageable pageable) {
         UserEntity userEntity = userService.getUserByUsername(username);
         return new ResultEntity(modelResourceService.getPassResource(userEntity, pageable));
     }

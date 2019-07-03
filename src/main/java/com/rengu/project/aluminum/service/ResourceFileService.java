@@ -303,7 +303,6 @@ public class ResourceFileService {
             map.put("FileEntity", resourceFileEntity.getFileEntity());
             map.put("name", resourceFileEntity.getName());
             fileEntityList.add(map);
-            log.info(fileEntity.getLocalPath());
         }
         return fileEntityList;
     }
