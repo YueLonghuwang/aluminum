@@ -294,4 +294,17 @@ public class ResourceFileService {
         return FilenameUtils.separatorsToSystem(basePath);
     }
 
+    public List<Object> getAllFilesById(String resourceId) {
+        List<Object> fileEntityList = new ArrayList<>();
+        List<ResourceFileEntity> resourceFileEntityList = resourceFileRepository.findByResourceId(resourceId);
+        for (ResourceFileEntity resourceFileEntity : resourceFileEntityList) {
+            FileEntity fileEntity = resourceFileEntity.getFileEntity();
+            Map map = new HashMap<>();
+            map.put("FileEntity", resourceFileEntity.getFileEntity());
+            map.put("name", resourceFileEntity.getName());
+            fileEntityList.add(map);
+            log.info(fileEntity.getLocalPath());
+        }
+        return fileEntityList;
+    }
 }

@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static com.rengu.project.aluminum.specification.SpecificationBuilder.selectFrom;
 
@@ -112,9 +113,9 @@ public class ToolsAndSoftwareController {
         return new ResultEntity(toolsAndSoftwareService.getOutResources(userEntity, pageable));
     }
 
-    // 通过用户获取出库的资源
-    @GetMapping("/{userId}/putInStorage")
-    public ResultEntity getResources(@PathVariable(value = "userId") String userId) {
-        return new ResultEntity<>(toolsAndSoftwareService.getPutInStorageResources(userId));
+    // 根据资源ID查询当前资源文件内所有内容
+    @GetMapping(value = "/{resourceId}/getAllFiles")
+    public ResultEntity<List<Object>> getAllFiles(@PathVariable(value = "resourceId") String resourceId) {
+        return new ResultEntity<>(toolsAndSoftwareService.getAllFilesById(resourceId));
     }
 }
