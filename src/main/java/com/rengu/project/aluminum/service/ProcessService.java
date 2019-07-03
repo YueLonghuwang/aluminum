@@ -97,6 +97,7 @@ public class ProcessService {
         applicationRecord.setUsers(userService.getUserById(userId));
         applicationRecord.setApprovalStatus(ResourceStatusEnum.REVIEWING.getCode());
         applicationRecord.setApplicationStatus(applicationStatus);
+        System.out.println(applicationRecord.getApplicationStatus());
         applicationRecord.setExplainInfo(explain);
         applicationRecord.setResourceType(resourceType);
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("audit", map);
