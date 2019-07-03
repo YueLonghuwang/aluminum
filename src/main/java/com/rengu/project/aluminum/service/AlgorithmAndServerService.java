@@ -1,5 +1,6 @@
 package com.rengu.project.aluminum.service;
 
+import com.rengu.project.aluminum.ApplicationConfig;
 import com.rengu.project.aluminum.entity.AlgorithmAndServerEntity;
 import com.rengu.project.aluminum.entity.ApplicationRecord;
 import com.rengu.project.aluminum.entity.UserEntity;
@@ -128,15 +129,15 @@ public class AlgorithmAndServerService extends ResourceService<AlgorithmAndServe
 
     // 通过密级获取资源
     @Override
-    public Page getResourcesBysecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum) {
-        return algorithmAndServerRepository.findBySecurityClassificationLessThanEqualAndStatus(pageable, securityClassificationEnum.getCode(), ResourceStatusEnum.PASSED.getCode());
+    public Page getResourcesBySecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum, int status) {
+        return algorithmAndServerRepository.findBySecurityClassificationLessThanEqualAndStatus(pageable, securityClassificationEnum.getCode(), status);
     }
 
-    //
     @Override
-    public Page getResourcesByUser(Pageable pageable, UserEntity userEntity) {
-        return getResourcesBysecurityClassification(pageable, SecurityClassificationEnum.getEnum(userEntity.getSecurityClassification()));
+    public Page getResourcesByUser(Pageable pageable, UserEntity userEntity, int status) {
+        return getResourcesBySecurityClassification(pageable, SecurityClassificationEnum.getEnum(userEntity.getSecurityClassification()), status);
     }
+
 
     @Override
     public Page getResources(Pageable pageable) {
@@ -167,5 +168,17 @@ public class AlgorithmAndServerService extends ResourceService<AlgorithmAndServe
             }
         }
         return applicationRecordArrayList;
+    }
+
+    // 根据用户姓名查询入库资源文件
+    public Page<ApplicationRecord> getPassResource(UserEntity userEntity, Pageable pageable) {
+        // 根据资源类型，资源是否批准完成状态，出库还是入库状态，以及等级权限进行判断
+        return applicationRecordRepository.findByResourceTypeAndApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(pageable, ApplicationConfig.ALGORITHM_RESOURCE, ApplicationConfig.BE_PUT_IN_STORAGE, ApplicationConfig.PASS_ALL_AUDIT, userEntity.getSecurityClassification());
+    }
+
+    // 根据用户姓名查询出库资源文件
+    public Page<ApplicationRecord> getOutResources(UserEntity userEntity, Pageable pageable) {
+        // 根据资源类型，资源是否批准完成状态，出库还是入库状态，以及等级权限进行判断
+        return applicationRecordRepository.findByResourceTypeAndApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(pageable, ApplicationConfig.ALGORITHM_RESOURCE, ApplicationConfig.PUT_IN_STORAGE, ApplicationConfig.PASS_ALL_AUDIT, userEntity.getSecurityClassification());
     }
 }

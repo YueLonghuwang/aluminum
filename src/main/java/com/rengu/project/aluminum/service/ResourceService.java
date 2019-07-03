@@ -48,10 +48,10 @@ public abstract class ResourceService<T> {
     public abstract T getResourceById(String resourceId, UserEntity userEntity);
 
     // 根据密级查询资源
-    public abstract Page<T> getResourcesBysecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum);
+    public abstract Page<T> getResourcesBySecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum, int status);
 
     // 根据用户查询资源
-    public abstract Page<T> getResourcesByUser(Pageable pageable, UserEntity userEntity);
+    public abstract Page<T> getResourcesByUser(Pageable pageable, UserEntity userEntity, int status);
 
     // 根据全部
     public abstract Page<T> getResources(Pageable pageable);

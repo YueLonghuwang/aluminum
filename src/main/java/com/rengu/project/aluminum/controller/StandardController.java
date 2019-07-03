@@ -106,10 +106,10 @@ public class StandardController {
     }
 
     // 根据用户名查询资源
-    @GetMapping(value = "/by/user")
+    @GetMapping
     public ResultEntity<Page<StandardEntity>> getResourcesByUser(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         UserEntity userEntity = userService.getUserByUsername(username);
-        return new ResultEntity<>(standardService.getResourcesByUser(pageable, userEntity));
+        return new ResultEntity<>(standardService.getResourcesByUsers(pageable, userEntity));
     }
 
     // 根据ID预览文件
@@ -123,10 +123,10 @@ public class StandardController {
     public ResultEntity<List<Object>> getAllFiles(@PathVariable(value = "resourceId") String resourceId) {
         return new ResultEntity<>(standardService.getAllFilesById(resourceId));
     }
-    @GetMapping
+/*    @GetMapping
     public ResultEntity<Page<StandardEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         return new ResultEntity<>(standardService.getResources(pageable));
-    }
+    }*/
 
 
 

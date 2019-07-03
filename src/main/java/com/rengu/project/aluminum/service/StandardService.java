@@ -127,13 +127,21 @@ public class StandardService extends ResourceService<StandardEntity> {
     }
 
     @Override
-    public Page<StandardEntity> getResourcesBysecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum) {
-        return standardRepository.findBySecurityClassificationLessThanEqualAndStatus(pageable, securityClassificationEnum.getCode(), ResourceStatusEnum.PASSED.getCode());
+    public Page<StandardEntity> getResourcesBySecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum, int status) {
+        return null;
     }
 
     @Override
-    public Page<StandardEntity> getResourcesByUser(Pageable pageable, UserEntity userEntity) {
-        return getResourcesBysecurityClassification(pageable, SecurityClassificationEnum.getEnum(userEntity.getSecurityClassification()));
+    public Page<StandardEntity> getResourcesByUser(Pageable pageable, UserEntity userEntity, int status) {
+        return null;
+    }
+
+    public Page<StandardEntity> getResourcesBySecurityClassifications(Pageable pageable, SecurityClassificationEnum securityClassificationEnum) {
+        return standardRepository.findBySecurityClassificationLessThanEqual(pageable, securityClassificationEnum.getCode());
+    }
+
+    public Page<StandardEntity> getResourcesByUsers(Pageable pageable, UserEntity userEntity) {
+        return getResourcesBySecurityClassifications(pageable, SecurityClassificationEnum.getEnum(userEntity.getSecurityClassification()));
     }
 
     @Override

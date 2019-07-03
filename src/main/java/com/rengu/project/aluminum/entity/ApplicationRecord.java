@@ -34,5 +34,8 @@ public class ApplicationRecord implements Serializable {
     private ToolsAndSoftwareEntity toolsSoftware;
     private int applicationStatus; // 0:入库 1:出库
     private int approvalStatus;   // 审批状态
+    private int currentStatus;  // 当前状态
+    private int resourceType; // 资源类型
+    private int securityClassification; // 资源密级
     private String explainInfo; // 入库说明
 }

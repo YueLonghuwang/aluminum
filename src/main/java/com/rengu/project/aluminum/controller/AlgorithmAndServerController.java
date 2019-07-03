@@ -1,6 +1,7 @@
 package com.rengu.project.aluminum.controller;
 
 import com.rengu.project.aluminum.entity.AlgorithmAndServerEntity;
+import com.rengu.project.aluminum.entity.ApplicationRecord;
 import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.repository.AlgorithmAndServerRepository;
@@ -51,8 +52,8 @@ public class AlgorithmAndServerController {
 
     // 根据关键字查询
     @PostMapping("/KeyWord")
-    public ResultEntity findByKeyWord(@RequestBody Filter filter) {
-        return new ResultEntity(selectFrom(algorithmAndServerRepository).where(filter).findAll());
+    public ResultEntity<java.util.List<AlgorithmAndServerEntity>> findByKeyWord(@RequestBody Filter filter) {
+        return new ResultEntity<>(selectFrom(algorithmAndServerRepository).where(filter).findAll());
     }
     // 根据ID删除标准规范
     @DeleteMapping(value = "/{algorithmAndServerId}")
@@ -89,22 +90,25 @@ public class AlgorithmAndServerController {
         httpServletResponse.flushBuffer();
     }
 
-    // 根据ID修查询准规范
-    @GetMapping(value = "/by/user")
-    public ResultEntity<Page<AlgorithmAndServerEntity>> getResourcesByUser(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+    // 根据用户姓名查询入库的信息
+    @GetMapping(value = "/username/ByPass")
+    public ResultEntity<Page<ApplicationRecord>> getResourcesByPass(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         UserEntity userEntity = userService.getUserByUsername(username);
-        return new ResultEntity<>(algorithmAndServerService.getResourcesByUser(pageable, userEntity));
+        return new ResultEntity(algorithmAndServerService.getPassResource(userEntity, pageable));
     }
 
-    // 根据ID修查询准规范
-    @GetMapping
-    public ResultEntity<Page<AlgorithmAndServerEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
-        return new ResultEntity<>(algorithmAndServerService.getResources(pageable));
+    // 根据用户姓名查询未入库的信息
+    @GetMapping(value = "/username/ByInitialStatus")
+    public ResultEntity<Page<AlgorithmAndServerEntity>> getResourcesByInitialStatus(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        UserEntity userEntity = userService.getUserByUsername(username);
+        return new ResultEntity<>(algorithmAndServerService.getResourcesByUser(pageable, userEntity, 0));
     }
 
     // 通过用户获取出库的资源
-    @GetMapping("/{userId}/putInStorage")
-    public ResultEntity getResources(@PathVariable(value = "userId") String userId) {
-        return new ResultEntity<>(algorithmAndServerService.getPutInStorageResources(userId));
+    @GetMapping("/username/ByOut")
+    public ResultEntity<Page<ApplicationRecord>> getResourcesByOut(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        UserEntity userEntity = userService.getUserByUsername(username);
+        return new ResultEntity(algorithmAndServerService.getOutResources(userEntity, pageable));
     }
+
 }

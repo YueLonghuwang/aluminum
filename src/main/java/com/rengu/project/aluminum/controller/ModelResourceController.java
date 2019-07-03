@@ -1,8 +1,6 @@
 package com.rengu.project.aluminum.controller;
 
-import com.rengu.project.aluminum.entity.ModelResourceEntity;
-import com.rengu.project.aluminum.entity.ResultEntity;
-import com.rengu.project.aluminum.entity.UserEntity;
+import com.rengu.project.aluminum.entity.*;
 import com.rengu.project.aluminum.repository.ModelResourceRepository;
 import com.rengu.project.aluminum.service.ModelResourceService;
 import com.rengu.project.aluminum.service.UserService;
@@ -99,18 +97,24 @@ public class ModelResourceController {
         httpServletResponse.flushBuffer();
     }
 
-    // 通过用户获取入库后的资源
-    @GetMapping(value = "/by/user")
-    public ResultEntity<Page<ModelResourceEntity>> getResourcesByUser(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+    // 根据用户姓名查询未入库的信息
+    @GetMapping(value = "/username/ByInitialStatus")
+    public ResultEntity<Page<AlgorithmAndServerEntity>> getResourcesByInitialStatus(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         UserEntity userEntity = userService.getUserByUsername(username);
-        return new ResultEntity<>(modelResourceService.getResourcesByUser(pageable, userEntity));
+        return new ResultEntity<>(modelResourceService.getResourcesByUser(pageable, userEntity, 0));
+    }
+
+    // 根据用户姓名查询入库的信息
+    @GetMapping(value = "/username/ByPass")
+    public ResultEntity<Page<ApplicationRecord>> getResourcesByPass(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        UserEntity userEntity = userService.getUserByUsername(username);
+        return new ResultEntity(modelResourceService.getPassResource(userEntity, pageable));
     }
 
     // 通过用户获取出库的资源
-    @GetMapping("/{userId}/putInStorage")
-    public ResultEntity getResources(@PathVariable(value = "userId") String userId) {
-        return new ResultEntity<>(modelResourceService.getPutInStorageResources(userId));
+    @GetMapping("/username/ByOut")
+    public ResultEntity<Page<ApplicationRecord>> getResourcesByOut(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        UserEntity userEntity = userService.getUserByUsername(username);
+        return new ResultEntity(modelResourceService.getOutResources(userEntity, pageable));
     }
-
-
 }

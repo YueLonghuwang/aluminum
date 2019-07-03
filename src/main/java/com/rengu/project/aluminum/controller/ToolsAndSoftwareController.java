@@ -1,5 +1,6 @@
 package com.rengu.project.aluminum.controller;
 
+import com.rengu.project.aluminum.entity.ApplicationRecord;
 import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.ToolsAndSoftwareEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
@@ -54,6 +55,7 @@ public class ToolsAndSoftwareController {
     public ResultEntity findByKeyWord(@RequestBody Filter filter) {
         return new ResultEntity(selectFrom(toolsAndSoftwareRepository).where(filter).findAll());
     }
+
     // 根据ID删除标准规范
     @DeleteMapping(value = "/{toolsAndSoftwareId}")
     public ResultEntity<ToolsAndSoftwareEntity> deleteResourceById(@AuthenticationPrincipal String username, @PathVariable(value = "toolsAndSoftwareId") String toolsAndSoftwareId) throws IOException {
@@ -89,17 +91,25 @@ public class ToolsAndSoftwareController {
         httpServletResponse.flushBuffer();
     }
 
-    // 根据ID修查询准规范
-    @GetMapping(value = "/by/user")
-    public ResultEntity<Page<ToolsAndSoftwareEntity>> getResourcesByUser(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+    // 根据用户姓名查询未入库的信息
+    @GetMapping(value = "/username/ByInitialStatus")
+    public ResultEntity<Page<ToolsAndSoftwareEntity>> getResourcesByInitialStatus(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         UserEntity userEntity = userService.getUserByUsername(username);
-        return new ResultEntity<>(toolsAndSoftwareService.getResourcesByUser(pageable, userEntity));
+        return new ResultEntity<>(toolsAndSoftwareService.getResourcesByUser(pageable, userEntity, 0));
     }
 
-    // 根据ID修查询准规范
-    @GetMapping
-    public ResultEntity<Page<ToolsAndSoftwareEntity>> getResources(@PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
-        return new ResultEntity<>(toolsAndSoftwareService.getResources(pageable));
+    // 根据用户姓名查询入库的信息
+    @GetMapping(value = "/username/ByPass")
+    public ResultEntity<Page<ApplicationRecord>> getResourcesByPass(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        UserEntity userEntity = userService.getUserByUsername(username);
+        return new ResultEntity(toolsAndSoftwareService.getPassResource(userEntity, pageable));
+    }
+
+    // 通过用户获取出库的资源
+    @GetMapping("/username/ByOut")
+    public ResultEntity<Page<ApplicationRecord>> getResourcesByOut(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+        UserEntity userEntity = userService.getUserByUsername(username);
+        return new ResultEntity(toolsAndSoftwareService.getOutResources(userEntity, pageable));
     }
 
     // 通过用户获取出库的资源
