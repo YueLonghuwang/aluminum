@@ -102,7 +102,7 @@ public class AlgorithmAndServerController {
     @GetMapping(value = "/username/ByInitialStatus")
     public ResultEntity<Page<AlgorithmAndServerEntity>> getResourcesByInitialStatus(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         UserEntity userEntity = userService.getUserByUsername(username);
-        int[] status = {0, 1, 2};
+        int[] status = {0, 1, 2, 3};
         return new ResultEntity<>(algorithmAndServerService.getResourcesByUser(pageable, userEntity, status));
     }
 

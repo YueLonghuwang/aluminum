@@ -102,19 +102,25 @@ public class ProcessService {
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("audit", map);
         String processId = processInstance.getId();              // 流程id
         ProcessEntity processEntity = new ProcessEntity();
-        switch (resourceType) {                                  // 保存流程节点到resource
+        switch (resourceType) {
+            // 保存流程节点到resource
             case ApplicationConfig.MODEL_RESOURCE:
                 ModelResourceEntity modelResourceEntity = modelResourceRepository.findById(resourceId).get();
-                modelResourceEntity.setProcessId(processId);
-                modelResourceEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
-                modelResourceRepository.save(modelResourceEntity);
+                ModelResourceEntity modelResourceEntitys = new ModelResourceEntity();
+                if (modelResourceEntity.getStatus() != 2) {
+                    modelResourceEntity.setProcessId(processId);
+                    modelResourceEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
+                    modelResourceRepository.save(modelResourceEntity);
+                } else {
+                    modelResourceEntity.setProcessId(processId);
+                    modelResourceEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
+                }
                 // 保存审核状态
                 processEntity.setResourceEntity(modelResourceEntity);
                 // 保存资源密级
                 applicationRecord.setSecurityClassification(modelResourceEntity.getSecurityClassification());
                 applicationRecord.setModelResource(modelResourceEntity);
                 break;
-
             case ApplicationConfig.STANDARD_RESOURCE:
                 StandardEntity standardEntity = standardRepository.findById(resourceId).get();
                 standardEntity.setProcessId(processId);
@@ -307,9 +313,9 @@ public class ProcessService {
             case ApplicationConfig.MODEL_RESOURCE:
                 ModelResourceEntity modelResourceEntity = modelResourceRepository.findByProcessId(processId);
                 ApplicationRecord applicationRecordModel = applicationRecordRepository.findByModelResource(modelResourceEntity).get();
-                System.out.println(applicationRecordModel.getCurrentStatus());
                 // 当前状态+1
                 applicationRecordModel.setCurrentStatus(applicationRecordModel.getCurrentStatus() + 1);
+
                 if (ifApprove.equals("驳回")) {
                     applicationRecordModel.setCurrentStatus(0);
                     applicationRecordModel.setApprovalStatus(ResourceStatusEnum.REFUSED.getCode());

@@ -50,7 +50,7 @@ public class ResourceFileController {
     // 根据Id删除资源文件
     @DeleteMapping(value = "/{resourceFileId}")
     public ResultEntity<ResourceFileEntity> deleteResourceFileById(@PathVariable(value = "resourceFileId") String resourceFileId) throws IOException {
-        return new ResultEntity<>(resourceFileService.deleteResourceFileById(resourceFileId));
+        return new ResultEntity(resourceFileService.deleteResourceFileById(resourceFileId));
     }
 
     // 根据Id修改资源文件

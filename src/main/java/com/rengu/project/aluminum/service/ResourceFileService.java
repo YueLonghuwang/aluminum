@@ -138,10 +138,13 @@ public class ResourceFileService {
     }
 
     // 根据ID删除资源文件
-    public ResourceFileEntity deleteResourceFileById(String resourceFileId) throws IOException {
-        ResourceFileEntity resourceFileEntity = getResourceFileById(resourceFileId);
-        deleteResourceFile(resourceFileEntity);
-        return resourceFileEntity;
+    public List<ResourceFileEntity> deleteResourceFileById(String resourceFileId) throws IOException {
+        List<ResourceFileEntity> resourceFileEntitys = getResourceFilesById(resourceFileId);
+        for (ResourceFileEntity resourceFileEntity : resourceFileEntitys) {
+            deleteResourceFile(resourceFileEntity);
+        }
+
+        return resourceFileEntitys;
     }
 
     public ResourceFileEntity deleteResourceFile(ResourceFileEntity resourceFileEntity) throws IOException {
@@ -189,6 +192,17 @@ public class ResourceFileService {
         return resourceFileEntityOptional.get();
     }
 
+    // 根据id查询资源文件
+    public List<ResourceFileEntity> getResourceFilesById(String resourceFileId) {
+        if (StringUtils.isEmpty(resourceFileId)) {
+            throw new ResourceFileException(ApplicationMessageEnum.RESOURCE_FILE_ID_NOT_FOUND);
+        }
+        List<ResourceFileEntity> resourceFileEntityOptional = resourceFileRepository.findByResourceId(resourceFileId);
+        if (resourceFileEntityOptional.size() == 0) {
+            throw new ResourceFileException(ApplicationMessageEnum.RESOURCE_FILE_ID_NOT_EXISTS);
+        }
+        return resourceFileEntityOptional;
+    }
     // 根据名称、拓展名、父节点、资源id查询资源文件
     public ResourceFileEntity getResourceFileByNameAndExtensionAndParentNodeAndResourceIdAndFolder(String name, String extension, ResourceFileEntity parentNode, String resourceId, boolean isFolder) {
         if (StringUtils.isEmpty(name)) {
