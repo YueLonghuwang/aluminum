@@ -132,13 +132,13 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
 
     // 通过密级获取资源
     @Override
-    public Page getResourcesBySecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum, int status) {
-        return modelResourceRepository.findBySecurityClassificationLessThanEqualAndStatus(pageable, securityClassificationEnum.getCode(), status);
+    public Page getResourcesBySecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum, int[] status) {
+        return modelResourceRepository.findBySecurityClassificationLessThanEqualAndStatusIn(pageable, securityClassificationEnum.getCode(), status);
     }
 
     //
     @Override
-    public Page getResourcesByUser(Pageable pageable, UserEntity userEntity, int status) {
+    public Page getResourcesByUser(Pageable pageable, UserEntity userEntity, int[] status) {
         return getResourcesBySecurityClassification(pageable, SecurityClassificationEnum.getEnum(userEntity.getSecurityClassification()), status);
     }
 
@@ -188,7 +188,7 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
     // 根据用户姓名查询出库资源文件
     public Page<ApplicationRecord> getOutResources(UserEntity userEntity, Pageable pageable) {
         // 根据资源类型，资源是否批准完成状态，出库还是入库状态，以及等级权限进行判断
-        return applicationRecordRepository.findByResourceTypeAndApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(pageable, ApplicationConfig.ALGORITHM_RESOURCE, ApplicationConfig.PUT_IN_STORAGE, ApplicationConfig.PASS_ALL_AUDIT, userEntity.getSecurityClassification());
+        return applicationRecordRepository.findByResourceTypeAndApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(pageable, ApplicationConfig.MODEL_RESOURCE, ApplicationConfig.PUT_IN_STORAGE, ApplicationConfig.PASS_ALL_AUDIT, userEntity.getSecurityClassification());
     }
 
     // 根据资源ID查询该资源所有的文件

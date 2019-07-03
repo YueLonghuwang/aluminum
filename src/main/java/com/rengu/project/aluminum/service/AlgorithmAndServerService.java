@@ -129,12 +129,12 @@ public class AlgorithmAndServerService extends ResourceService<AlgorithmAndServe
 
     // 通过密级获取资源
     @Override
-    public Page getResourcesBySecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum, int status) {
-        return algorithmAndServerRepository.findBySecurityClassificationLessThanEqualAndStatus(pageable, securityClassificationEnum.getCode(), status);
+    public Page getResourcesBySecurityClassification(Pageable pageable, SecurityClassificationEnum securityClassificationEnum, int[] status) {
+        return algorithmAndServerRepository.findBySecurityClassificationLessThanEqualAndStatusIn(pageable, securityClassificationEnum.getCode(), status);
     }
 
     @Override
-    public Page getResourcesByUser(Pageable pageable, UserEntity userEntity, int status) {
+    public Page getResourcesByUser(Pageable pageable, UserEntity userEntity, int[] status) {
         return getResourcesBySecurityClassification(pageable, SecurityClassificationEnum.getEnum(userEntity.getSecurityClassification()), status);
     }
 

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 public interface AlgorithmAndServerRepository extends JpaRepository<AlgorithmAndServerEntity, String>, JpaSpecificationExecutor<AlgorithmAndServerEntity> {
     boolean existsByNameAndVersionAndStatusIn(String name, String version, int[] status);
 
-    Page<ModelResourceEntity> findBySecurityClassificationLessThanEqualAndStatus(Pageable pageable, int securityClassification, int status);
+    Page<ModelResourceEntity> findBySecurityClassificationLessThanEqualAndStatusIn(Pageable pageable, int securityClassification, int[] status);
 
     AlgorithmAndServerEntity findByProcessId(String processId);
     boolean existsByProcessId(String processId);

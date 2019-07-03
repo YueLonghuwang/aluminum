@@ -307,14 +307,15 @@ public class ProcessService {
             case ApplicationConfig.MODEL_RESOURCE:
                 ModelResourceEntity modelResourceEntity = modelResourceRepository.findByProcessId(processId);
                 ApplicationRecord applicationRecordModel = applicationRecordRepository.findByModelResource(modelResourceEntity).get();
+                System.out.println(applicationRecordModel.getCurrentStatus());
+                // 当前状态+1
+                applicationRecordModel.setCurrentStatus(applicationRecordModel.getCurrentStatus() + 1);
                 if (ifApprove.equals("驳回")) {
                     applicationRecordModel.setCurrentStatus(0);
                     applicationRecordModel.setApprovalStatus(ResourceStatusEnum.REFUSED.getCode());
                     modelResourceEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
                 }
                 if (ifApprove.equals("通过") && name.equals("批准")) {
-                    // 当前状态+1
-                    applicationRecordModel.setCurrentStatus(applicationRecordModel.getCurrentStatus() + 1);
                     applicationRecordModel.setApprovalStatus(ResourceStatusEnum.PASSED.getCode());
                     modelResourceEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
                 }
@@ -323,14 +324,14 @@ public class ProcessService {
             case ApplicationConfig.STANDARD_RESOURCE:
                 StandardEntity standardEntity = standardRepository.findByProcessId(processId);
                 ApplicationRecord applicationRecordStandard = applicationRecordRepository.findByStandard(standardEntity).get();
+                // 当前状态+1
+                applicationRecordStandard.setCurrentStatus(applicationRecordStandard.getCurrentStatus() + 1);
                 if (ifApprove.equals("驳回")) {
                     applicationRecordStandard.setCurrentStatus(0);
                     applicationRecordStandard.setApprovalStatus(ResourceStatusEnum.REFUSED.getCode());
                     standardEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
                 }
                 if (ifApprove.equals("通过") && name.equals("批准")) {
-                    // 当前状态+1
-                    applicationRecordStandard.setCurrentStatus(applicationRecordStandard.getCurrentStatus() + 1);
                     applicationRecordStandard.setApprovalStatus(ResourceStatusEnum.PASSED.getCode());
                     standardEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
                 }
@@ -339,14 +340,14 @@ public class ProcessService {
             case ApplicationConfig.ALGORITHM_RESOURCE:
                 AlgorithmAndServerEntity algorithmAndServerEntity = algorithmAndServerRepository.findByProcessId(processId);
                 ApplicationRecord applicationRecordAlgorithmAndServer = applicationRecordRepository.findByAlgorithmServer(algorithmAndServerEntity).get();
+                // 当前状态+1
+                applicationRecordAlgorithmAndServer.setCurrentStatus(applicationRecordAlgorithmAndServer.getCurrentStatus() + 1);
                 if (ifApprove.equals("驳回")) {
                     applicationRecordAlgorithmAndServer.setCurrentStatus(0);
                     applicationRecordAlgorithmAndServer.setApprovalStatus(ResourceStatusEnum.REFUSED.getCode());
                     algorithmAndServerEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
                 }
                 if (ifApprove.equals("通过") && name.equals("批准")) {
-                    // 当前状态+1
-                    applicationRecordAlgorithmAndServer.setCurrentStatus(applicationRecordAlgorithmAndServer.getCurrentStatus() + 1);
                     applicationRecordAlgorithmAndServer.setApprovalStatus(ResourceStatusEnum.PASSED.getCode());
                     algorithmAndServerEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
                 }
@@ -355,14 +356,14 @@ public class ProcessService {
             case ApplicationConfig.TOOLS_RESOURCE:
                 ToolsAndSoftwareEntity toolsAndSoftwareEntity = toolsAndSoftwareRepository.findByProcessId(processId);
                 ApplicationRecord applicationRecordToolsAndSoftware = applicationRecordRepository.findByToolsSoftware(toolsAndSoftwareEntity).get();
+                // 当前状态+1
+                applicationRecordToolsAndSoftware.setCurrentStatus(applicationRecordToolsAndSoftware.getCurrentStatus() + 1);
                 if (ifApprove.equals("驳回")) {
                     applicationRecordToolsAndSoftware.setCurrentStatus(0);
                     applicationRecordToolsAndSoftware.setApprovalStatus(ResourceStatusEnum.REFUSED.getCode());
                     toolsAndSoftwareEntity.setStatus(ResourceStatusEnum.REFUSED.getCode());
                 }
                 if (ifApprove.equals("通过") && name.equals("批准")) {
-                    // 当前状态+1
-                    applicationRecordToolsAndSoftware.setCurrentStatus(applicationRecordToolsAndSoftware.getCurrentStatus() + 1);
                     applicationRecordToolsAndSoftware.setApprovalStatus(ResourceStatusEnum.PASSED.getCode());
                     toolsAndSoftwareEntity.setStatus(ResourceStatusEnum.PASSED.getCode());
                 }

@@ -48,7 +48,7 @@ public class ApplicationConfig {
     private String OAUTH_JWT_SIGNINGKEY;
     // 入库出库状态
     public static final int BE_PUT_IN_STORAGE = 0; // 入库
-    public static final int PUT_IN_STORAGE = 0; // 出库
+    public static final int PUT_IN_STORAGE = 1; // 出库
     // 通过所有审核
     public static final int PASS_ALL_AUDIT = 4;
     // resource类型
