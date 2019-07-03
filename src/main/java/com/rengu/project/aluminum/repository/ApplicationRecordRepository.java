@@ -1,6 +1,6 @@
 package com.rengu.project.aluminum.repository;
 
-import com.rengu.project.aluminum.entity.*;
+import com.rengu.project.aluminum.entity.ApplicationRecord;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,22 +14,24 @@ import java.util.Optional;
  **/
 @Repository
 public interface ApplicationRecordRepository extends JpaRepository<ApplicationRecord, String> {
-    Optional<ApplicationRecord> findByModelResource(ModelResourceEntity modelResourceEntity);
 
-    Optional<ApplicationRecord> findByAlgorithmServer(AlgorithmAndServerEntity algorithmAndServerEntity);
-    Optional<ApplicationRecord> findByToolsSoftware(ToolsAndSoftwareEntity toolsAndSoftwareEntity);
+    Optional<ApplicationRecord> findByProcessId(String processId);
 
-    Optional<ApplicationRecord> findByStandard(StandardEntity standardEntity);
+    /* Optional<ApplicationRecord> findByModelResource(ModelResourceEntity modelResourceEntity);
 
-    Page<ApplicationRecord> findByApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int applicationStatus, int currentStatus, int securityClassification);
+     Optional<ApplicationRecord> findByAlgorithmServer(AlgorithmAndServerEntity algorithmAndServerEntity);
+     Optional<ApplicationRecord> findByToolsSoftware(ToolsAndSoftwareEntity toolsAndSoftwareEntity);
 
-    Page<ApplicationRecord> findByResourceTypeAndCurrentStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int resourceType, int currentStatus, int securityClassification);
+     Optional<ApplicationRecord> findByStandard(StandardEntity standardEntity);
 
-    Page<ApplicationRecord> findByResourceTypeAndApplicationStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int resourceType, int applicationStatus, int securityClassification);
+     Page<ApplicationRecord> findByApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int applicationStatus, int currentStatus, int securityClassification);
 
-    Page<ApplicationRecord> findByResourceTypeAndApplicationStatusAndCurrentStatus(Pageable pageable, int resourceType, int applicationStatus, int currentStatus);
+     Page<ApplicationRecord> findByResourceTypeAndCurrentStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int resourceType, int currentStatus, int securityClassification);
 
-    Page<ApplicationRecord> findByResourceType(Pageable pageable, int resourceType);
+     Page<ApplicationRecord> findByResourceTypeAndApplicationStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int resourceType, int applicationStatus, int securityClassification);
 
-    Page<ApplicationRecord> findByResourceTypeAndApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int resourceType, int applicationStatus, int currentStatus, int securityClassification);
+     Page<ApplicationRecord> findByResourceTypeAndApplicationStatusAndCurrentStatus(Pageable pageable, int resourceType, int applicationStatus, int currentStatus);
+
+     Page<ApplicationRecord> findByResourceType(Pageable pageable, int resourceType);
+ */    Page<ApplicationRecord> findByResourceTypeAndApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(Pageable pageable, int resourceType, int applicationStatus, int currentStatus, int securityClassification);
 }

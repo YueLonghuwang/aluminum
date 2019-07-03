@@ -23,7 +23,6 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -168,7 +167,7 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
     }
 
 
-    public List<ApplicationRecord> getPutInStorageResources(String userId) {
+/*    public List<ApplicationRecord> getPutInStorageResources(String userId) {
         List<ApplicationRecord> applicationRecordList = applicationRecordRepository.findAll();
         List<ApplicationRecord> applicationRecordArrayList = new ArrayList<>();
         for (ApplicationRecord applicationRecord : applicationRecordList) {
@@ -177,7 +176,7 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
             }
         }
         return applicationRecordArrayList;
-    }
+    }*/
 
     // 根据用户姓名查询入库资源文件
     public Page<ApplicationRecord> getPassResource(UserEntity userEntity, Pageable pageable) {

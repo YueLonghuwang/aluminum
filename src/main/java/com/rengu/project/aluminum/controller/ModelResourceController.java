@@ -1,6 +1,9 @@
 package com.rengu.project.aluminum.controller;
 
-import com.rengu.project.aluminum.entity.*;
+import com.rengu.project.aluminum.entity.ApplicationRecord;
+import com.rengu.project.aluminum.entity.ModelResourceEntity;
+import com.rengu.project.aluminum.entity.ResultEntity;
+import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.repository.ModelResourceRepository;
 import com.rengu.project.aluminum.service.ModelResourceService;
 import com.rengu.project.aluminum.service.UserService;
@@ -93,14 +96,13 @@ public class ModelResourceController {
         // 文件流输出
         @Cleanup FileInputStream fileInputStream = new FileInputStream(compressFile);
         @Cleanup OutputStream outputStream = httpServletResponse.getOutputStream();
-//        printFile(fileInputStream,outputStream);
         IOUtils.copy(fileInputStream, outputStream);
         httpServletResponse.flushBuffer();
     }
 
     // 根据用户姓名查询未入库的信息
     @GetMapping(value = "/username/ByInitialStatus")
-    public ResultEntity<Page<AlgorithmAndServerEntity>> getResourcesByInitialStatus(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResultEntity<Page<ModelResourceEntity>> getResourcesByInitialStatus(@AuthenticationPrincipal String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
         UserEntity userEntity = userService.getUserByUsername(username);
         int[] status = {0, 1, 2, 3};
         return new ResultEntity<>(modelResourceService.getResourcesByUser(pageable, userEntity, status));
