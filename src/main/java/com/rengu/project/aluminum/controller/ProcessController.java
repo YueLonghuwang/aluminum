@@ -3,6 +3,7 @@ package com.rengu.project.aluminum.controller;
 import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.TaskEntity;
 import com.rengu.project.aluminum.service.ProcessService;
+import com.rengu.project.aluminum.service.ResourceFileService;
 import org.flowable.engine.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,11 +21,12 @@ import java.util.List;
 public class ProcessController {
     private final ProcessService processService;
     private final TaskService taskService;
-
+    private final ResourceFileService resourceFileService;
     @Autowired
-    public ProcessController(ProcessService processService, TaskService taskService) {
+    public ProcessController(ProcessService processService, TaskService taskService, ResourceFileService resourceFileService) {
         this.processService = processService;
         this.taskService = taskService;
+        this.resourceFileService = resourceFileService;
     }
 
     // 启动流程
@@ -107,4 +109,9 @@ public class ProcessController {
 
     }
 
+    // 根据资源ID查询当前资源文件内所有内容
+    @GetMapping(value = "/{resourceId}/getAllFiles")
+    public ResultEntity<List<Object>> getAllFiles(@PathVariable(value = "resourceId") String resourceId) {
+        return new ResultEntity<>(resourceFileService.getAllFilesById(resourceId));
+    }
 }
