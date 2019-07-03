@@ -108,20 +108,19 @@ public class ProcessService {
             // 保存流程节点到resource
             case ApplicationConfig.MODEL_RESOURCE:
                 ModelResourceEntity modelResourceEntity = modelResourceRepository.findById(resourceId).get();
-                ModelResourceEntity modelResourceEntitys = new ModelResourceEntity();
                 if (modelResourceEntity.getStatus() != 2) {
                     modelResourceEntity.setProcessId(processId);
                     modelResourceEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
                     modelResourceRepository.save(modelResourceEntity);
                 } else {
                     modelResourceEntity.setProcessId(processId);
-                    modelResourceEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
+//                    modelResourceEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
                 }
                 // 保存审核状态
                 processEntity.setResourceEntity(modelResourceEntity);
                 // 保存资源密级
                 applicationRecord.setSecurityClassification(modelResourceEntity.getSecurityClassification());
-//                applicationRecord.setModelResource(modelResourceEntity);
+                applicationRecord.setModelResource(modelResourceEntity);
                 break;
             case ApplicationConfig.STANDARD_RESOURCE:
                 StandardEntity standardEntity = standardRepository.findById(resourceId).get();
@@ -129,7 +128,7 @@ public class ProcessService {
                 standardEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
                 standardRepository.save(standardEntity);
                 // 保存审核状态
-//                applicationRecord.setStandard(standardEntity);
+                applicationRecord.setStandard(standardEntity);
                 applicationRecord.setSecurityClassification(standardEntity.getSecurityClassification());
                 processEntity.setResourceEntity(standardEntity);
                 break;
@@ -139,7 +138,7 @@ public class ProcessService {
                 algorithmAndServerEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
                 algorithmAndServerRepository.save(algorithmAndServerEntity);
                 // 保存审核状态
-//                applicationRecord.setAlgorithmServer(algorithmAndServerEntity);
+                applicationRecord.setAlgorithmServer(algorithmAndServerEntity);
                 applicationRecord.setSecurityClassification(algorithmAndServerEntity.getSecurityClassification());
                 processEntity.setResourceEntity(algorithmAndServerEntity);
                 break;
@@ -149,7 +148,7 @@ public class ProcessService {
                 toolsAndSoftwareEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
                 toolsAndSoftwareRepository.save(toolsAndSoftwareEntity);
                 // 保存审核状态
-//                applicationRecord.setToolsSoftware(toolsAndSoftwareEntity);
+                applicationRecord.setToolsSoftware(toolsAndSoftwareEntity);
                 applicationRecord.setSecurityClassification(toolsAndSoftwareEntity.getSecurityClassification());
                 processEntity.setResourceEntity(toolsAndSoftwareEntity);
                 break;
