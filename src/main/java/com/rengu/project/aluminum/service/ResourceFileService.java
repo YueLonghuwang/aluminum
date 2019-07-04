@@ -312,12 +312,29 @@ public class ResourceFileService {
         List<Object> fileEntityList = new ArrayList<>();
         List<ResourceFileEntity> resourceFileEntityList = resourceFileRepository.findByResourceId(resourceId);
         for (ResourceFileEntity resourceFileEntity : resourceFileEntityList) {
-            FileEntity fileEntity = resourceFileEntity.getFileEntity();
             Map map = new HashMap<>();
             map.put("FileEntity", resourceFileEntity.getFileEntity());
             map.put("name", resourceFileEntity.getName());
             fileEntityList.add(map);
         }
         return fileEntityList;
+    }
+
+    //
+    public List<Object> getAllHistoryFilesById(String historyResourceId) {
+        List<Object> fileEntityList = new ArrayList<>();
+        List<ResourceFileEntity> resourceFileEntityList = resourceFileRepository.findByAndResourceHistoryId(historyResourceId);
+        for (ResourceFileEntity resourceFileEntity : resourceFileEntityList) {
+            Map map = new HashMap<>();
+            map.put("FileEntity", resourceFileEntity.getFileEntity());
+            map.put("name", resourceFileEntity.getName());
+            fileEntityList.add(map);
+        }
+        return fileEntityList;
+    }
+
+    // 保存
+    public ResourceFileEntity save(ResourceFileEntity resourceFileEntity) {
+        return resourceFileRepository.save(resourceFileEntity);
     }
 }

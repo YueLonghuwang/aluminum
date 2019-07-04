@@ -64,7 +64,7 @@ public class ToolsAndSoftwareController {
         return new ResultEntity<>(toolsAndSoftwareService.deleteResourceById(toolsAndSoftwareId, userEntity));
     }
 
-    // 根据ID修改标准规范
+    // 根据ID修改工具
     @PatchMapping(value = "/{toolsAndSoftwareId}")
     public ResultEntity<ToolsAndSoftwareEntity> updateResourceById(@AuthenticationPrincipal String username, @PathVariable(value = "toolsAndSoftwareId") String toolsAndSoftwareId, ToolsAndSoftwareEntity toolsAndSoftwareEntity) {
         UserEntity userEntity = userService.getUserByUsername(username);

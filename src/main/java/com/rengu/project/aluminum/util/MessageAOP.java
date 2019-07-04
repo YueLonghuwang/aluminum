@@ -55,6 +55,7 @@ public class MessageAOP {
 
     }
 
+
     @AfterReturning(pointcut = "requestPonitCut()", returning = "resultEntity")
     public void doAfterReturning(JoinPoint joinPoint, ResultEntity resultEntity) {
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

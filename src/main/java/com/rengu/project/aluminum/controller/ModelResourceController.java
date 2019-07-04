@@ -1,9 +1,6 @@
 package com.rengu.project.aluminum.controller;
 
-import com.rengu.project.aluminum.entity.ApplicationRecord;
-import com.rengu.project.aluminum.entity.ModelResourceEntity;
-import com.rengu.project.aluminum.entity.ResultEntity;
-import com.rengu.project.aluminum.entity.UserEntity;
+import com.rengu.project.aluminum.entity.*;
 import com.rengu.project.aluminum.repository.ModelResourceRepository;
 import com.rengu.project.aluminum.service.ModelResourceService;
 import com.rengu.project.aluminum.service.UserService;
@@ -126,5 +123,17 @@ public class ModelResourceController {
     @GetMapping(value = "/{resourceId}/getAllFiles")
     public ResultEntity<List<Object>> getAllFiles(@PathVariable(value = "resourceId") String resourceId) {
         return new ResultEntity<>(modelResourceService.getAllFilesById(resourceId));
+    }
+
+    // 根据资源Id查询历史文件信息
+    @GetMapping(value = "/{resourceId}getAllHistoryFilesById")
+    public ResultEntity<List<ModelResourceHistory>> getAllHistoryFilesById(@PathVariable(value = "resourceId") String resourceId) {
+        return new ResultEntity<>(modelResourceService.getAllHistoryFilesById(resourceId));
+    }
+
+    // 根据历史文件Id查询历史文件
+    @GetMapping(value = "/{historyResourceId}getAllHistoryFilesByHistoryId")
+    public ResultEntity<List<Object>> getAllHistoryFiles(@PathVariable(value = "historyResourceId") String historyResourceId) {
+        return new ResultEntity<>(modelResourceService.getHistoryFile(historyResourceId));
     }
 }

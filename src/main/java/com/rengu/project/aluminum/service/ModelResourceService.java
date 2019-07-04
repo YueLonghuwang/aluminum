@@ -1,14 +1,13 @@
 package com.rengu.project.aluminum.service;
 
 import com.rengu.project.aluminum.ApplicationConfig;
-import com.rengu.project.aluminum.entity.ApplicationRecord;
-import com.rengu.project.aluminum.entity.ModelResourceEntity;
-import com.rengu.project.aluminum.entity.UserEntity;
+import com.rengu.project.aluminum.entity.*;
 import com.rengu.project.aluminum.enums.ApplicationMessageEnum;
 import com.rengu.project.aluminum.enums.ResourceStatusEnum;
 import com.rengu.project.aluminum.enums.SecurityClassificationEnum;
 import com.rengu.project.aluminum.exception.ResourceException;
 import com.rengu.project.aluminum.repository.ApplicationRecordRepository;
+import com.rengu.project.aluminum.repository.ModelResourceHistoryRepository;
 import com.rengu.project.aluminum.repository.ModelResourceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -38,12 +37,14 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
     private final ResourceFileService resourceFileService;
     private final UserService userService;
     private final ApplicationRecordRepository applicationRecordRepository;
+    private final ModelResourceHistoryRepository modelResourceHistoryRepository;
 
-    public ModelResourceService(ModelResourceRepository modelResourceRepository, ResourceFileService resourceFileService, UserService userService, ApplicationRecordRepository applicationRecordRepository) {
+    public ModelResourceService(ModelResourceRepository modelResourceRepository, ResourceFileService resourceFileService, UserService userService, ApplicationRecordRepository applicationRecordRepository, ModelResourceHistoryRepository modelResourceHistoryRepository) {
         this.modelResourceRepository = modelResourceRepository;
         this.resourceFileService = resourceFileService;
         this.userService = userService;
         this.applicationRecordRepository = applicationRecordRepository;
+        this.modelResourceHistoryRepository = modelResourceHistoryRepository;
     }
 
     // 保存模型资源
@@ -55,7 +56,8 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
         if (hasStandardByNameAndVersionAndStatus(modelResourceEntity.getName(), modelResourceEntity.getVersion(), ResourceStatusEnum.PASSED.getCode(), ResourceStatusEnum.REVIEWING.getCode())) {
             String modelId = getResourceByNameAndVersionAndStatus(modelResourceEntity.getName(), modelResourceEntity.getVersion(), ResourceStatusEnum.PASSED.getCode(), ResourceStatusEnum.REVIEWING.getCode()).getId();
             if (resourceFileService.existsByResourceId(modelId)) {
-                throw new ResourceException(ApplicationMessageEnum.RESOURCE_NAME_AND_VERSION_EXISTS);
+                return modelResourceRepository.findById(modelId).get();
+//                throw new ResourceException(ApplicationMessageEnum.RESOURCE_NAME_AND_VERSION_EXISTS);
             }
         }
         return modelResourceRepository.save(modelResourceEntity);
@@ -78,9 +80,21 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
     public ModelResourceEntity updateResourceById(String resourceId, ModelResourceEntity modelResourceEntityArgs, UserEntity userEntity) {
         ModelResourceEntity modelResourceEntity = getResourceById(resourceId);
         super.securityCheck(modelResourceEntity, userEntity);
+        ModelResourceHistory modelResourceHistory = new ModelResourceHistory();
+        BeanUtils.copyProperties(modelResourceEntityArgs, modelResourceHistory, "id");
+        modelResourceHistory.setModelResourceEntity(modelResourceEntity);
+        modelResourceHistoryRepository.save(modelResourceHistory);
+        // 根据资源ID查询当前未修改前的资源
+        List<ResourceFileEntity> resourceFileEntityList = resourceFileService.getResourceFilesById(modelResourceEntity.getId());
+        for (ResourceFileEntity resourceFileEntity : resourceFileEntityList) {
+            // 保存当前文件的历史ID到ResourceFileId
+            resourceFileEntity.setResourceHistoryId(modelResourceEntity.getId());
+            resourceFileService.save(resourceFileEntity);
+        }
         if (hasStandardByNameAndVersionAndStatus(modelResourceEntityArgs.getName(), modelResourceEntityArgs.getVersion(), ResourceStatusEnum.PASSED.getCode(), ResourceStatusEnum.REVIEWING.getCode())) {
             throw new ResourceException(ApplicationMessageEnum.RESOURCE_NAME_AND_VERSION_EXISTS);
         }
+
         BeanUtils.copyProperties(modelResourceEntityArgs, modelResourceEntity, "id", "createTime", "securityClassification", "status", "createUser", "modifyUser");
         modelResourceRepository.save(modelResourceEntity);
         return modelResourceEntity;
@@ -193,5 +207,15 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
     // 根据资源ID查询该资源所有的文件
     public List<Object> getAllFilesById(String resourceId) {
         return resourceFileService.getAllFilesById(resourceId);
+    }
+
+    // 根据资源ID查询历史文件信息
+    public List<ModelResourceHistory> getAllHistoryFilesById(String resourceId) {
+        return modelResourceHistoryRepository.findByModelResourceEntity(getResourceById(resourceId));
+    }
+
+    // 根据历史ID查询历史文件详细信息
+    public List<Object> getHistoryFile(String historyResourceId) {
+        return resourceFileService.getAllHistoryFilesById(historyResourceId);
     }
 }
