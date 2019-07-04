@@ -55,7 +55,8 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
         if (hasStandardByNameAndVersionAndStatus(modelResourceEntity.getName(), modelResourceEntity.getVersion(), ResourceStatusEnum.PASSED.getCode(), ResourceStatusEnum.REVIEWING.getCode())) {
             String modelId = getResourceByNameAndVersionAndStatus(modelResourceEntity.getName(), modelResourceEntity.getVersion(), ResourceStatusEnum.PASSED.getCode(), ResourceStatusEnum.REVIEWING.getCode()).getId();
             if (resourceFileService.existsByResourceId(modelId)) {
-                throw new ResourceException(ApplicationMessageEnum.RESOURCE_NAME_AND_VERSION_EXISTS);
+                return modelResourceRepository.findById(modelId).get();
+//                throw new ResourceException(ApplicationMessageEnum.RESOURCE_NAME_AND_VERSION_EXISTS);
             }
         }
         return modelResourceRepository.save(modelResourceEntity);
@@ -81,6 +82,7 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
         if (hasStandardByNameAndVersionAndStatus(modelResourceEntityArgs.getName(), modelResourceEntityArgs.getVersion(), ResourceStatusEnum.PASSED.getCode(), ResourceStatusEnum.REVIEWING.getCode())) {
             throw new ResourceException(ApplicationMessageEnum.RESOURCE_NAME_AND_VERSION_EXISTS);
         }
+
         BeanUtils.copyProperties(modelResourceEntityArgs, modelResourceEntity, "id", "createTime", "securityClassification", "status", "createUser", "modifyUser");
         modelResourceRepository.save(modelResourceEntity);
         return modelResourceEntity;

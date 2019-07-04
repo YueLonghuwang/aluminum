@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -55,6 +56,11 @@ public class MessageAOP {
 
     }
 
+    // 前置通知
+    @Before("requestPonitCut()")
+    public void test() {
+
+    }
     @AfterReturning(pointcut = "requestPonitCut()", returning = "resultEntity")
     public void doAfterReturning(JoinPoint joinPoint, ResultEntity resultEntity) {
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

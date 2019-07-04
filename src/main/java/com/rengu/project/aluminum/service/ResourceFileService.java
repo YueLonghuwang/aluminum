@@ -312,7 +312,6 @@ public class ResourceFileService {
         List<Object> fileEntityList = new ArrayList<>();
         List<ResourceFileEntity> resourceFileEntityList = resourceFileRepository.findByResourceId(resourceId);
         for (ResourceFileEntity resourceFileEntity : resourceFileEntityList) {
-            FileEntity fileEntity = resourceFileEntity.getFileEntity();
             Map map = new HashMap<>();
             map.put("FileEntity", resourceFileEntity.getFileEntity());
             map.put("name", resourceFileEntity.getName());
