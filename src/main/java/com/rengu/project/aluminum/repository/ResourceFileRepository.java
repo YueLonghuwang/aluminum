@@ -31,4 +31,5 @@ public interface ResourceFileRepository extends JpaRepository<ResourceFileEntity
 
     boolean existsByResourceId(String resourceId);
 
+    List<ResourceFileEntity> findByAndResourceHistoryId(String historyResourceId);
 }

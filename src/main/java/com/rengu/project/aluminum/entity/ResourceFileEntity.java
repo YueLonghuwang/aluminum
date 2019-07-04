@@ -29,6 +29,7 @@ public class ResourceFileEntity implements Serializable {
     private String extension;
     private boolean folder;
     private String resourceId;
+    private String resourceHistoryId;
     @ManyToOne
     private FileEntity fileEntity;
     @ManyToOne
