@@ -5,6 +5,7 @@ import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.entity.ToolsAndSoftwareEntity;
 import com.rengu.project.aluminum.entity.UserEntity;
 import com.rengu.project.aluminum.repository.ToolsAndSoftwareRepository;
+import com.rengu.project.aluminum.service.ResourceFileService;
 import com.rengu.project.aluminum.service.ToolsAndSoftwareService;
 import com.rengu.project.aluminum.service.UserService;
 import com.rengu.project.aluminum.specification.Filter;
@@ -37,11 +38,13 @@ public class ToolsAndSoftwareController {
     private final ToolsAndSoftwareService toolsAndSoftwareService;
     private final UserService userService;
     private final ToolsAndSoftwareRepository toolsAndSoftwareRepository;
+    private final ResourceFileService resourceFileService;
 
-    public ToolsAndSoftwareController(ToolsAndSoftwareService toolsAndSoftwareService, UserService userService, ToolsAndSoftwareRepository toolsAndSoftwareRepository) {
+    public ToolsAndSoftwareController(ToolsAndSoftwareService toolsAndSoftwareService, UserService userService, ToolsAndSoftwareRepository toolsAndSoftwareRepository, ResourceFileService resourceFileService) {
         this.toolsAndSoftwareService = toolsAndSoftwareService;
         this.userService = userService;
         this.toolsAndSoftwareRepository = toolsAndSoftwareRepository;
+        this.resourceFileService = resourceFileService;
     }
 
     // 保存标准规范
@@ -118,5 +121,17 @@ public class ToolsAndSoftwareController {
     @GetMapping(value = "/{resourceId}/getAllFiles")
     public ResultEntity<List<Object>> getAllFiles(@PathVariable(value = "resourceId") String resourceId) {
         return new ResultEntity<>(toolsAndSoftwareService.getAllFilesById(resourceId));
+    }
+
+    // 根据资源Id查询历史文件信息
+    @GetMapping(value = "/{resourceId}/getAllHistoryFilesById")
+    public ResultEntity<List<ToolsAndSoftwareEntity>> getAllHistoryFilesById(@PathVariable(value = "resourceId") String resourceId) {
+        return new ResultEntity(resourceFileService.getAllHistoryFilesById(resourceId));
+    }
+
+    // 根据历史文件Id查询历史文件
+    @GetMapping(value = "/{historyResourceId}/getAllHistoryFilesByHistoryId")
+    public ResultEntity<List<Object>> getAllHistoryFiles(@PathVariable(value = "historyResourceId") String historyResourceId) {
+        return new ResultEntity<>(resourceFileService.getAllHistoryFilesById(historyResourceId));
     }
 }

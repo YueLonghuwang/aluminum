@@ -81,14 +81,14 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
         ModelResourceEntity modelResourceEntity = getResourceById(resourceId);
         super.securityCheck(modelResourceEntity, userEntity);
         ModelResourceHistory modelResourceHistory = new ModelResourceHistory();
-        BeanUtils.copyProperties(modelResourceEntityArgs, modelResourceHistory, "id");
+        BeanUtils.copyProperties(modelResourceEntity, modelResourceHistory, "id");
         modelResourceHistory.setModelResourceEntity(modelResourceEntity);
         modelResourceHistoryRepository.save(modelResourceHistory);
         // 根据资源ID查询当前未修改前的资源
         List<ResourceFileEntity> resourceFileEntityList = resourceFileService.getResourceFilesById(modelResourceEntity.getId());
         for (ResourceFileEntity resourceFileEntity : resourceFileEntityList) {
             // 保存当前文件的历史ID到ResourceFileId
-            resourceFileEntity.setResourceHistoryId(modelResourceEntity.getId());
+            resourceFileEntity.setResourceHistoryId(modelResourceHistory.getId());
             resourceFileService.save(resourceFileEntity);
         }
         if (hasStandardByNameAndVersionAndStatus(modelResourceEntityArgs.getName(), modelResourceEntityArgs.getVersion(), ResourceStatusEnum.PASSED.getCode(), ResourceStatusEnum.REVIEWING.getCode())) {
@@ -195,10 +195,10 @@ public class ModelResourceService extends ResourceService<ModelResourceEntity> {
     // 根据用户姓名查询入库资源文件
     public Page<ApplicationRecord> getPassResource(UserEntity userEntity, Pageable pageable) {
         // 根据资源类型，资源是否批准完成状态，出库还是入库状态，以及等级权限进行判断
-        List<ApplicationRecord> recordList = applicationRecordRepository.findByUsers(userEntity);
+        /*List<ApplicationRecord> recordList = applicationRecordRepository.findByUsers(userEntity);
         for (ApplicationRecord applicationRecord : recordList) {
 
-        }
+        }*/
         return applicationRecordRepository.findByResourceTypeAndApplicationStatusAndCurrentStatusAndSecurityClassificationLessThanEqual(pageable, ApplicationConfig.MODEL_RESOURCE, ApplicationConfig.BE_PUT_IN_STORAGE, ApplicationConfig.PASS_ALL_AUDIT, userEntity.getSecurityClassification());
     }
 

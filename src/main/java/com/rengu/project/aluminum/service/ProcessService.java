@@ -91,6 +91,8 @@ public class ProcessService {
     public ProcessEntity startProcess(String userId, String departmentId, int resourceType, String resourceId, int applicationStatus, String explain) {
         Map<String, Object> map = new HashMap<>();
         map.put("userId", userId);
+        System.out.println(userId);
+        System.out.println(departmentId);
         map.put("departmentId", departmentId);
         map.put("resourceId", resourceId);
         ApplicationRecord applicationRecord = new ApplicationRecord();
@@ -261,7 +263,6 @@ public class ProcessService {
     // 根据流程id获取流程图
     public void getProcessDiagram(HttpServletResponse httpServletResponse, String processId) throws Exception {
         ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(processId).singleResult();
-
         //流程走完的不显示图
         if (pi == null) {
             return;

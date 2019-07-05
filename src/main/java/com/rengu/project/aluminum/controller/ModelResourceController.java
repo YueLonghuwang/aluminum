@@ -3,6 +3,7 @@ package com.rengu.project.aluminum.controller;
 import com.rengu.project.aluminum.entity.*;
 import com.rengu.project.aluminum.repository.ModelResourceRepository;
 import com.rengu.project.aluminum.service.ModelResourceService;
+import com.rengu.project.aluminum.service.ResourceFileService;
 import com.rengu.project.aluminum.service.UserService;
 import com.rengu.project.aluminum.specification.Filter;
 import lombok.Cleanup;
@@ -38,11 +39,13 @@ public class ModelResourceController {
     private final ModelResourceService modelResourceService;
     private final UserService userService;
     private final ModelResourceRepository modelResourceRepository;
+    private final ResourceFileService resourceFileService;
 
-    public ModelResourceController(ModelResourceService modelResourceService, UserService userService, ModelResourceRepository modelResourceRepository) {
+    public ModelResourceController(ModelResourceService modelResourceService, UserService userService, ModelResourceRepository modelResourceRepository, ResourceFileService resourceFileService) {
         this.modelResourceService = modelResourceService;
         this.userService = userService;
         this.modelResourceRepository = modelResourceRepository;
+        this.resourceFileService = resourceFileService;
     }
 
     // 保存模型资源
@@ -126,14 +129,14 @@ public class ModelResourceController {
     }
 
     // 根据资源Id查询历史文件信息
-    @GetMapping(value = "/{resourceId}getAllHistoryFilesById")
+    @GetMapping(value = "/{resourceId}/getAllHistoryFilesById")
     public ResultEntity<List<ModelResourceHistory>> getAllHistoryFilesById(@PathVariable(value = "resourceId") String resourceId) {
-        return new ResultEntity<>(modelResourceService.getAllHistoryFilesById(resourceId));
+        return new ResultEntity(resourceFileService.getAllHistoryFilesById(resourceId));
     }
 
     // 根据历史文件Id查询历史文件
-    @GetMapping(value = "/{historyResourceId}getAllHistoryFilesByHistoryId")
+    @GetMapping(value = "/{historyResourceId}/getAllHistoryFilesByHistoryId")
     public ResultEntity<List<Object>> getAllHistoryFiles(@PathVariable(value = "historyResourceId") String historyResourceId) {
-        return new ResultEntity<>(modelResourceService.getHistoryFile(historyResourceId));
+        return new ResultEntity<>(resourceFileService.getAllHistoryFilesById(historyResourceId));
     }
 }
