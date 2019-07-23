@@ -126,9 +126,13 @@ public class ProcessService {
                 break;
             case ApplicationConfig.STANDARD_RESOURCE:
                 StandardEntity standardEntity = standardRepository.findById(resourceId).get();
-                standardEntity.setProcessId(processId);
-                standardEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
-                standardRepository.save(standardEntity);
+                if (standardEntity.getStatus() != 2) {
+                    standardEntity.setProcessId(processId);
+                    standardEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
+                    standardRepository.save(standardEntity);
+                } else {
+                    standardEntity.setProcessId(processId);
+                }
                 // 保存审核状态
                 applicationRecord.setStandard(standardEntity);
                 applicationRecord.setSecurityClassification(standardEntity.getSecurityClassification());
@@ -136,9 +140,13 @@ public class ProcessService {
                 break;
             case ApplicationConfig.ALGORITHM_RESOURCE:
                 AlgorithmAndServerEntity algorithmAndServerEntity = algorithmAndServerRepository.findById(resourceId).get();
-                algorithmAndServerEntity.setProcessId(processId);
-                algorithmAndServerEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
-                algorithmAndServerRepository.save(algorithmAndServerEntity);
+                if (algorithmAndServerEntity.getStatus() != 2) {
+                    algorithmAndServerEntity.setProcessId(processId);
+                    algorithmAndServerEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
+                    algorithmAndServerRepository.save(algorithmAndServerEntity);
+                } else {
+                    algorithmAndServerEntity.setProcessId(processId);
+                }
                 // 保存审核状态
                 applicationRecord.setAlgorithmServer(algorithmAndServerEntity);
                 applicationRecord.setSecurityClassification(algorithmAndServerEntity.getSecurityClassification());
@@ -146,9 +154,13 @@ public class ProcessService {
                 break;
             case ApplicationConfig.TOOLS_RESOURCE:
                 ToolsAndSoftwareEntity toolsAndSoftwareEntity = toolsAndSoftwareRepository.findById(resourceId).get();
-                toolsAndSoftwareEntity.setProcessId(processId);
-                toolsAndSoftwareEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
-                toolsAndSoftwareRepository.save(toolsAndSoftwareEntity);
+                if (toolsAndSoftwareEntity.getStatus() != 2) {
+                    toolsAndSoftwareEntity.setProcessId(processId);
+                    toolsAndSoftwareEntity.setStatus(ResourceStatusEnum.REVIEWING.getCode());
+                    toolsAndSoftwareRepository.save(toolsAndSoftwareEntity);
+                } else {
+                    toolsAndSoftwareEntity.setProcessId(processId);
+                }
                 // 保存审核状态
                 applicationRecord.setToolsSoftware(toolsAndSoftwareEntity);
                 applicationRecord.setSecurityClassification(toolsAndSoftwareEntity.getSecurityClassification());
@@ -248,14 +260,14 @@ public class ProcessService {
             throw new ResourceException(ApplicationMessageEnum.PROCESSID_NOT_FOUND);
         }
         Map<Integer, ResourceEntity> map = new HashMap<>();
-        if (modelResourceRepository.existsByProcessId(processId)) {
-            map.put(ApplicationConfig.MODEL_RESOURCE, modelResourceRepository.findByProcessId(processId));
+        if (applicationRecordRepository.existsByProcessId(processId)) {
+            map.put(ApplicationConfig.MODEL_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getModelResource());
         } else if (standardRepository.existsByProcessId(processId)) {
-            map.put(ApplicationConfig.STANDARD_RESOURCE, standardRepository.findByProcessId(processId));
+            map.put(ApplicationConfig.STANDARD_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getStandard());
         } else if (algorithmAndServerRepository.existsByProcessId(processId)) {
-            map.put(ApplicationConfig.ALGORITHM_RESOURCE, algorithmAndServerRepository.findByProcessId(processId));
+            map.put(ApplicationConfig.ALGORITHM_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getAlgorithmServer());
         } else {
-            map.put(ApplicationConfig.TOOLS_RESOURCE, toolsAndSoftwareRepository.findByProcessId(processId));
+            map.put(ApplicationConfig.TOOLS_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getToolsSoftware());
         }
         return map;
     }

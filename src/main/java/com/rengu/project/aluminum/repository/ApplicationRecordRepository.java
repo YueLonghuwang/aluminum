@@ -19,6 +19,7 @@ public interface ApplicationRecordRepository extends JpaRepository<ApplicationRe
 
     Optional<ApplicationRecord> findByProcessId(String processId);
 
+    boolean existsByProcessId(String processId);
     List<ApplicationRecord> findByUsers(UserEntity userEntity);
     /* Optional<ApplicationRecord> findByModelResource(ModelResourceEntity modelResourceEntity);
 
