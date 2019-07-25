@@ -261,13 +261,15 @@ public class ProcessService {
         }
         Map<Integer, ResourceEntity> map = new HashMap<>();
         if (applicationRecordRepository.existsByProcessId(processId)) {
-            map.put(ApplicationConfig.MODEL_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getModelResource());
-        } else if (standardRepository.existsByProcessId(processId)) {
-            map.put(ApplicationConfig.STANDARD_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getStandard());
-        } else if (algorithmAndServerRepository.existsByProcessId(processId)) {
-            map.put(ApplicationConfig.ALGORITHM_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getAlgorithmServer());
-        } else {
-            map.put(ApplicationConfig.TOOLS_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getToolsSoftware());
+            if (applicationRecordRepository.findByProcessId(processId).get().getModelResource() != null) {
+                map.put(ApplicationConfig.MODEL_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getModelResource());
+            } else if (applicationRecordRepository.findByProcessId(processId).get().getStandard() != null) {
+                map.put(ApplicationConfig.STANDARD_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getStandard());
+            } else if (applicationRecordRepository.findByProcessId(processId).get().getAlgorithmServer() != null) {
+                map.put(ApplicationConfig.ALGORITHM_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getAlgorithmServer());
+            } else {
+                map.put(ApplicationConfig.TOOLS_RESOURCE, applicationRecordRepository.findByProcessId(processId).get().getToolsSoftware());
+            }
         }
         return map;
     }
