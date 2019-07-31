@@ -59,7 +59,6 @@ public class FileService {
 
     // 根据Md5判断文件是否存在
     public boolean hasFileByMD5(String MD5) {
-        System.out.println("MD5:     " + MD5);
         if (StringUtils.isEmpty(MD5)) {
             return false;
         }
@@ -197,7 +196,6 @@ public class FileService {
         if (hasFileByMD5(MD5)) {
                 return getFileByMD5(MD5);
         }
-        log.warn("现在是在保存文件信息!!!!!");
         filesEntity.setMD5(MD5);         // MD5
         filesEntity.setPostfix(FilenameUtils.getExtension(file.getName()));                // 后缀
         filesEntity.setFileSize(FileUtils.sizeOf(file));                                   // 大小

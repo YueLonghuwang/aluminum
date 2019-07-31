@@ -103,7 +103,7 @@ public class ResourceFileService {
     }
 
     // 查询md5是否存在
-    public FileEntity getFileByMD5(String MD5) throws InterruptedException {
+    public FileEntity getFileByMD5(String MD5) {
         log.info(MD5);
         if (!fileRepository.findByMD5(MD5).isPresent()) {
             throw new FileException(ApplicationMessageEnum.FILE_MD5_NOT_EXISTS);

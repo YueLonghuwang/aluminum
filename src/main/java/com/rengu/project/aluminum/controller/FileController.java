@@ -2,6 +2,7 @@ package com.rengu.project.aluminum.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rengu.project.aluminum.entity.ChunkEntity;
+import com.rengu.project.aluminum.entity.FileEntity;
 import com.rengu.project.aluminum.entity.ResultEntity;
 import com.rengu.project.aluminum.service.FileService;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +76,9 @@ public class FileController {
     // 合并文件块
     @PostMapping(value = "/chunks/merge")
     public ResultEntity<com.rengu.project.aluminum.entity.FileEntity> mergeChunks(ChunkEntity chunk) throws IOException, ExecutionException, InterruptedException {
-        return new ResultEntity<>(fileService.mergeChunkEntitys(chunk));
+        FileEntity fileEntity = fileService.mergeChunkEntitys(chunk);
+        log.info("合并文件信息完成");
+        Thread.sleep(500);
+        return new ResultEntity<>(fileEntity);
     }
 }
